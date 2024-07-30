@@ -1,11 +1,22 @@
+// components/AddGovernmentAppointeeForm.tsx
 "use client";
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { IGovernmentAppointee } from '../types';
-import { Snackbar, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { SelectChangeEvent } from '@mui/material/Select';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -24,21 +35,24 @@ const AddGovernmentAppointeeForm: React.FC = () => {
   const [notification, setNotification] = useState({
     show: false,
     message: '',
-    type: 'success' as 'success' | 'error'
+    type: 'success' as 'success' | 'error',
   });
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name as string]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setSaving(true);
-      console.log("Sending request with data:", formData); // Log form data
       const response = await axios.post('http://localhost:5000/api/appointtee', formData);
-      console.log("Response:", response); // Log the response
       if (response.status === 201) {
         setNotification({ show: true, message: 'Government Appointee added successfully', type: 'success' });
         setFormData(initialFormData);
@@ -46,7 +60,6 @@ const AddGovernmentAppointeeForm: React.FC = () => {
         setNotification({ show: true, message: `Unexpected response: ${response.statusText}`, type: 'error' });
       }
     } catch (error) {
-      console.error("Error:", error); // Log the error
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || 'Error adding Government Appointee';
         setNotification({ show: true, message: errorMessage, type: 'error' });
@@ -57,6 +70,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
       setSaving(false);
     }
   };
+
   const handleClear = () => {
     setFormData(initialFormData);
   };
@@ -66,79 +80,69 @@ const AddGovernmentAppointeeForm: React.FC = () => {
   };
 
   return (
-    <div className="p-4 bg-white shadow-md rounded mb-4">
+    <Box p={2} mb={4} boxShadow={3} borderRadius={2} bgcolor="white">
       <h2 className="text-xl font-bold mb-4">Add Government Appointee</h2>
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-700">Name</label>
-          <input
-            type="text"
+        <Box mb={2}>
+          <TextField
+            label="Name"
             name="name"
             value={formData.name}
             onChange={handleChange}
+            fullWidth
             required
-            className="border p-2 w-full"
           />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Electoral Area</label>
-          <input
-            type="text"
+        </Box>
+        <Box mb={2}>
+          <TextField
+            label="Electoral Area"
             name="electoralArea"
             value={formData.electoralArea}
             onChange={handleChange}
+            fullWidth
             required
-            className="border p-2 w-full"
           />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Contact</label>
-          <input
-            type="text"
+        </Box>
+        <Box mb={2}>
+          <TextField
+            label="Contact"
             name="contact"
             value={formData.contact}
             onChange={handleChange}
+            fullWidth
             required
-            className="border p-2 w-full"
           />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Gender</label>
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            required
-            className="border p-2 w-full"
-          >
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
-        <div className="flex space-x-4">
-          <button
+        </Box>
+        <Box mb={2}>
+          <FormControl fullWidth>
+            <InputLabel>Gender</InputLabel>
+            <Select
+              name="gender"
+              value={formData.gender}
+              onChange={handleSelectChange}
+              fullWidth
+              required
+            >
+              <MenuItem value="Male">Male</MenuItem>
+              <MenuItem value="Female">Female</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+        <Box display="flex" gap={2}>
+          <Button
             type="submit"
-            className={`bg-blue-500 text-white px-4 py-2 rounded ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+            variant="contained"
+            color="primary"
             disabled={saving}
+            startIcon={saving && <CircularProgress size={20} />}
           >
-            {saving && (
-              <CircularProgress
-                size={24}
-                className="inline-block mr-2"
-              />
-            )}
             {saving ? 'Saving...' : 'Add Government Appointee'}
-          </button>
-          <button
-            type="button"
-            onClick={handleClear}
-            className="bg-gray-500 text-white px-4 py-2 rounded"
-          >
+          </Button>
+          <Button variant="contained" onClick={handleClear} color="secondary">
             Clear
-          </button>
-        </div>
+          </Button>
+        </Box>
       </form>
-
       <Snackbar
         open={notification.show}
         autoHideDuration={6000}
@@ -149,7 +153,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
           {notification.message}
         </Alert>
       </Snackbar>
-    </div>
+    </Box>
   );
 };
 

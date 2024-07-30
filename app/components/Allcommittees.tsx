@@ -1,6 +1,9 @@
+// components/Subcommittees.tsx
 "use client";
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 interface Member {
   memberId: string;
@@ -21,7 +24,11 @@ const Subcommittees: React.FC = () => {
     const fetchSubcommittees = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/subcommittees');
-        setSubcommittees(response.data);
+        const sortedSubcommittees = response.data.sort((a: Subcommittee, b: Subcommittee) => {
+          const order = ['Transport', 'Revenue', 'Travel'];
+          return order.indexOf(a.name) - order.indexOf(b.name);
+        });
+        setSubcommittees(sortedSubcommittees);
       } catch (error) {
         console.error('Error fetching subcommittees:', error);
       }
@@ -31,33 +38,37 @@ const Subcommittees: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4">
+    <Grid container spacing={4}>
       {subcommittees.map((subcommittee) => (
-        <div key={subcommittee._id} className="subcommittee border-b border-gray-300 pb-4 mb-4">
-          <h2 className="text-xl font-bold mb-2">{subcommittee.name}</h2>
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Member Type
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {subcommittee.members.map((member) => (
-                <tr key={member.memberId}>
-                  <td className="px-6 py-4 whitespace-nowrap">{member.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{member.memberType}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Grid item xs={12} md={4} key={subcommittee._id}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" component="div">
+                {subcommittee.name}
+              </Typography>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Member Type</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {subcommittee.members.map((member) => (
+                      <TableRow key={member.memberId}>
+                        <TableCell>{member.name}</TableCell>
+                        <TableCell>{member.memberType}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 };
 

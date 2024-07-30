@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Snackbar, CircularProgress } from '@mui/material';
+import { Snackbar, CircularProgress, Button } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 interface Member {
@@ -11,6 +11,7 @@ interface Member {
   contact: string;
   gender: string;
   memberType: string;
+  isInSelectedSubcommittee?: boolean; // Optional field to indicate if the member is in the selected subcommittee
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
@@ -20,13 +21,32 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props,
 const MemberSearch: React.FC = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Member[]>([]);
+  const [subcommitteeMembers, setSubcommitteeMembers] = useState<Member[]>([]);
   const [selectedSubcommittee, setSelectedSubcommittee] = useState('Travel');
   const [notification, setNotification] = useState({
     show: false,
     message: '',
     type: 'success' as 'success' | 'error'
   });
+  const [loading, setLoading] = useState(false);
 
+  // Fetch subcommittee members whenever selectedSubcommittee changes
+  useEffect(() => {
+    const fetchSubcommitteeMembers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
+          params: { subcommitteeName: selectedSubcommittee }
+        });
+        setSubcommitteeMembers(response.data);
+      } catch (error) {
+        console.error('Error fetching subcommittee members:', error);
+      }
+    };
+
+    fetchSubcommitteeMembers();
+  }, [selectedSubcommittee]);
+
+  // Search members based on contact and determine membership status
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     if (e.target.value.trim() === '') {
@@ -35,26 +55,88 @@ const MemberSearch: React.FC = () => {
     }
     try {
       const response = await axios.get('http://localhost:5000/api/members/search', { params: { contact: e.target.value } });
-      setResults(response.data);
+      const allMembers: Member[] = response.data;
+      const membersWithStatus = allMembers.map((member) => ({
+        ...member,
+        isInSelectedSubcommittee: subcommitteeMembers.some(subMember => subMember._id === member._id)
+      }));
+      setResults(membersWithStatus);
     } catch (error) {
       console.error('Error searching members:', error);
     }
   };
 
-  const handleAddMember = async (member: Member) => {
+  // Add member to the selected subcommittee
+  const handleAddMember = async (member: Member, subcommittee: string) => {
+    if (!subcommittee) {
+      setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
     try {
       await axios.post('http://localhost:5000/api/subcommittees/addmember', {
-        subcommitteeName: selectedSubcommittee,
+        subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
       });
-      setNotification({ show: true, message: `${member.name} added to ${selectedSubcommittee}`, type: 'success' });
+
+      setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
+
+      // Refresh subcommittee members list and search results
+      await fetchSubcommitteeMembers();
+      handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
     } catch (error) {
       console.error('Error adding member to subcommittee:', error);
-      setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          const errorMessage = error.response?.data?.message;
+          switch (errorMessage) {
+            case 'Member is already in another subcommittee':
+              setNotification({ show: true, message: 'Member is already in another subcommittee', type: 'error' });
+              break;
+            case 'Member is already in this subcommittee':
+              setNotification({ show: true, message: 'Member is already in this subcommittee', type: 'error' });
+              break;
+            default:
+              setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+          }
+        } else {
+          setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+        }
+      } else {
+        setNotification({ show: true, message: 'An unexpected error occurred', type: 'error' });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Handle member deletion
+  const handleDeleteMember = async (member: Member) => {
+    if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
+      setLoading(true);
+      try {
+        await axios.delete(`http://localhost:5000/api/members/${member.memberType}/${member._id}`);
+        setNotification({ show: true, message: `${member.name} deleted successfully`, type: 'success' });
+
+        // Refresh search results
+        await handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
+      } catch (error) {
+        console.error('Error deleting member:', error);
+        setNotification({ show: true, message: 'Error deleting member', type: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Handle subcommittee selection change
+  const handleSubcommitteeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSubcommittee(e.target.value);
+  };
+
+  // Handle snackbar close
   const handleSnackbarClose = () => {
     setNotification({ ...notification, show: false });
   };
@@ -84,6 +166,9 @@ const MemberSearch: React.FC = () => {
               Member Type
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              In Subcommittee
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Subcommittee
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -99,28 +184,39 @@ const MemberSearch: React.FC = () => {
               <td className="px-6 py-4 whitespace-nowrap">{member.gender}</td>
               <td className="px-6 py-4 whitespace-nowrap">{member.memberType}</td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <select
-                  onChange={(e) => setSelectedSubcommittee(e.target.value)}
-                  value={selectedSubcommittee}
-                  className="border border-gray-300 rounded-md p-1"
-                >
-                  <option value="Travel">Travel</option>
-                  <option value="Revenue">Revenue</option>
-                  <option value="Transport">Transport</option>
-                </select>
+                {member.isInSelectedSubcommittee ? 'Yes' : 'No'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <button
-                  onClick={() => handleAddMember(member)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                {!member.isInSelectedSubcommittee && (
+                  <select
+                    onChange={(e) => handleAddMember(member, e.target.value)}
+                    className="border border-gray-300 rounded-md p-1"
+                  >
+                    <option value="">Committees</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Revenue">Revenue</option>
+                    <option value="Transport">Transport</option>
+                  </select>
+                )}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <Button
+                  onClick={() => handleDeleteMember(member)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
                 >
-                  Add
-                </button>
+                  Delete
+                </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {loading && (
+        <div className="flex justify-center items-center mt-4">
+          <CircularProgress />
+        </div>
+      )}
 
       <Snackbar
         open={notification.show}
