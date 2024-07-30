@@ -52,7 +52,7 @@ const AddAssemblyMemberForm: React.FC = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      const response = await axios.post('http://localhost:5000/api/assemblymember', formData);
+      const response = await axios.post('https://kmabackend.onrender.com/api/assemblymember', formData);
       if (response.status === 201 || response.status === 200) {
         setNotification({ show: true, message: 'Assembly Member added successfully', type: 'success' });
         setFormData(initialFormData);

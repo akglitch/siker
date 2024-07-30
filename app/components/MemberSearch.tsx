@@ -131,9 +131,16 @@ const MemberSearch: React.FC = () => {
     }
   };
 
-  // Handle subcommittee selection change
-  const handleSubcommitteeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubcommittee(e.target.value);
+  // Fetch subcommittee members
+  const fetchSubcommitteeMembers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
+        params: { subcommitteeName: selectedSubcommittee }
+      });
+      setSubcommitteeMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching subcommittee members:', error);
+    }
   };
 
   // Handle snackbar close
@@ -190,6 +197,7 @@ const MemberSearch: React.FC = () => {
                 {!member.isInSelectedSubcommittee && (
                   <select
                     onChange={(e) => handleAddMember(member, e.target.value)}
+                    value={selectedSubcommittee}
                     className="border border-gray-300 rounded-md p-1"
                   >
                     <option value="">Committees</option>
