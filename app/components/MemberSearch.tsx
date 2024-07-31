@@ -11,7 +11,7 @@ interface Member {
   contact: string;
   gender: string;
   memberType: string;
-  isInSelectedSubcommittee?: boolean; // Optional field to indicate if the member is in the selected subcommittee
+  isInSelectedSubcommittee?: boolean;
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
@@ -30,23 +30,21 @@ const MemberSearch: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Fetch subcommittee members whenever selectedSubcommittee changes
-  useEffect(() => {
-    const fetchSubcommitteeMembers = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
-          params: { subcommitteeName: selectedSubcommittee }
-        });
-        setSubcommitteeMembers(response.data);
-      } catch (error) {
-        console.error('Error fetching subcommittee members:', error);
-      }
-    };
+  const fetchSubcommitteeMembers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
+        params: { subcommitteeName: selectedSubcommittee }
+      });
+      setSubcommitteeMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching subcommittee members:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchSubcommitteeMembers();
   }, [selectedSubcommittee]);
 
-  // Search members based on contact and determine membership status
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     if (e.target.value.trim() === '') {
@@ -66,7 +64,6 @@ const MemberSearch: React.FC = () => {
     }
   };
 
-  // Add member to the selected subcommittee
   const handleAddMember = async (member: Member, subcommittee: string) => {
     if (!subcommittee) {
       setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
@@ -83,7 +80,6 @@ const MemberSearch: React.FC = () => {
 
       setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
 
-      // Refresh subcommittee members list and search results
       await fetchSubcommitteeMembers();
       handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
     } catch (error) {
@@ -112,7 +108,6 @@ const MemberSearch: React.FC = () => {
     }
   };
 
-  // Handle member deletion
   const handleDeleteMember = async (member: Member) => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
       setLoading(true);
@@ -120,7 +115,6 @@ const MemberSearch: React.FC = () => {
         await axios.delete(`http://localhost:5000/api/members/${member.memberType}/${member._id}`);
         setNotification({ show: true, message: `${member.name} deleted successfully`, type: 'success' });
 
-        // Refresh search results
         await handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
       } catch (error) {
         console.error('Error deleting member:', error);
@@ -131,19 +125,10 @@ const MemberSearch: React.FC = () => {
     }
   };
 
-  // Fetch subcommittee members
-  const fetchSubcommitteeMembers = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
-        params: { subcommitteeName: selectedSubcommittee }
-      });
-      setSubcommitteeMembers(response.data);
-    } catch (error) {
-      console.error('Error fetching subcommittee members:', error);
-    }
+  const handleSubcommitteeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSubcommittee(e.target.value);
   };
 
-  // Handle snackbar close
   const handleSnackbarClose = () => {
     setNotification({ ...notification, show: false });
   };
@@ -197,7 +182,6 @@ const MemberSearch: React.FC = () => {
                 {!member.isInSelectedSubcommittee && (
                   <select
                     onChange={(e) => handleAddMember(member, e.target.value)}
-                    value={selectedSubcommittee}
                     className="border border-gray-300 rounded-md p-1"
                   >
                     <option value="">Committees</option>

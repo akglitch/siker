@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
   return (
     <Container>
       <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard
+        MANAGEMENT SYSTEM
       </Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
