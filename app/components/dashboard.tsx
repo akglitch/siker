@@ -5,7 +5,7 @@ import React from 'react';
 import AddGovernmentAppointeeForm from '../components/AddGovernmentAppointeeForm';
 import AddAssemblyMemberForm from '../components/AddAssemblyMemberForm';
 import MemberSearch from '../components/MemberSearch';
-import Subcommittees from '../components/Allcommittees';
+import Subcommitees from './Allcommitees';
 import { Container, Grid, Typography } from '@mui/material';
 
 const Dashboard: React.FC = () => {
@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
           <MemberSearch />
         </Grid>
         <Grid item xs={12}>
-          <Subcommittees />
+          <Subcommitees />
         </Grid>
       </Grid>
     </Container>

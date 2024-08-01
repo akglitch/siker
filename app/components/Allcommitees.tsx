@@ -17,7 +17,7 @@ interface Subcommittee {
   members: Member[];
 }
 
-const Subcommittees: React.FC = () => {
+const Subcommitees: React.FC = () => {
   const [subcommittees, setSubcommittees] = useState<Subcommittee[]>([]);
 
   useEffect(() => {
@@ -72,4 +72,4 @@ const Subcommittees: React.FC = () => {
   );
 };
 
-export default Subcommittees;
+export default Subcommitees;
