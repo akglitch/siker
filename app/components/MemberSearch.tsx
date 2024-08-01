@@ -32,7 +32,7 @@ const MemberSearch: React.FC = () => {
 
   const fetchSubcommitteeMembers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
+      const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees/members', {
         params: { subcommitteeName: selectedSubcommittee }
       });
       setSubcommitteeMembers(response.data);
@@ -52,7 +52,8 @@ const MemberSearch: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/members/search', { params: { contact: e.target.value } });
+      const response = await axios.get('https://kmabackend.onrender.com/api/members/search', { params: { contact: e.target.value } });
+      console.log('Search Response:', response.data); // Log the response data for debugging
       const allMembers: Member[] = response.data;
       const membersWithStatus = allMembers.map((member) => ({
         ...member,
@@ -72,7 +73,7 @@ const MemberSearch: React.FC = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/subcommittees/addmember', {
+      await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
         subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
@@ -112,7 +113,7 @@ const MemberSearch: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
       setLoading(true);
       try {
-        await axios.delete(`http://localhost:5000/api/members/${member.memberType}/${member._id}`);
+        await axios.delete(`https://kmabackend.onrender.com/api/members/${member.memberType}/${member._id}`);
         setNotification({ show: true, message: `${member.name} deleted successfully`, type: 'success' });
 
         await handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
@@ -142,67 +143,70 @@ const MemberSearch: React.FC = () => {
         onChange={handleSearch}
         className="search-bar border border-gray-300 p-2 rounded-md"
       />
-      <table className="min-w-full divide-y divide-gray-200 mt-4">
-        <thead className="bg-gray-50">
-          <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Contact
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Gender
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Member Type
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              In Subcommittee
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Subcommittee
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {results.map((member) => (
-            <tr key={member._id}>
-              <td className="px-6 py-4 whitespace-nowrap">{member.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{member.contact}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{member.gender}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{member.memberType}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {member.isInSelectedSubcommittee ? 'Yes' : 'No'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {!member.isInSelectedSubcommittee && (
-                  <select
-                    onChange={(e) => handleAddMember(member, e.target.value)}
-                    className="border border-gray-300 rounded-md p-1"
-                  >
-                    <option value="">Committees</option>
-                    <option value="Travel">Travel</option>
-                    <option value="Revenue">Revenue</option>
-                    <option value="Transport">Transport</option>
-                  </select>
-                )}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <Button
-                  onClick={() => handleDeleteMember(member)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Delete
-                </Button>
-              </td>
+      <div className="overflow-x-auto mt-4">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Contact
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Gender
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Member Type
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                Subcommittee
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Action
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {results.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-4 whitespace-nowrap text-center">
+                  No results found.
+                </td>
+              </tr>
+            )}
+            {results.map((member) => (
+              <tr key={member._id}>
+                <td className="px-4 py-4 whitespace-nowrap">{member.name}</td>
+                <td className="px-4 py-4 whitespace-nowrap">{member.contact}</td>
+                <td className="px-4 py-4 whitespace-nowrap">{member.gender}</td>
+                <td className="px-4 py-4 whitespace-nowrap">{member.memberType}</td>
+                <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
+                  {!member.isInSelectedSubcommittee && (
+                    <select
+                      onChange={(e) => handleAddMember(member, e.target.value)}
+                      className="border border-gray-300 rounded-md p-1"
+                    >
+                      <option value="">Committees</option>
+                      <option value="Travel">Travel</option>
+                      <option value="Revenue">Revenue</option>
+                      <option value="Transport">Transport</option>
+                    </select>
+                  )}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap">
+                  <Button
+                    onClick={() => handleDeleteMember(member)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  >
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {loading && (
         <div className="flex justify-center items-center mt-4">

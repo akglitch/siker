@@ -7,12 +7,13 @@ import AddAssemblyMemberForm from '../components/AddAssemblyMemberForm';
 import MemberSearch from '../components/MemberSearch';
 import Subcommitees from './Allcommitees';
 import { Container, Grid, Typography } from '@mui/material';
+import Link from 'next/link';
 
 const Dashboard: React.FC = () => {
   return (
     <Container>
       <Typography variant="h4" component="h1" gutterBottom>
-        MANAGEMENT SYSTEM
+        kMS
       </Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
@@ -28,6 +29,14 @@ const Dashboard: React.FC = () => {
           <Subcommitees />
         </Grid>
       </Grid>
+      <Typography variant="body2" color="inherit" align="center" >
+      {"Copyright © "}
+      <Link color="inherit" href="#">
+        Kaytee
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
     </Container>
   );
 };
