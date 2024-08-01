@@ -29,3 +29,4 @@ export interface ISubcommittee {
   name: string;
   members: ISubcommitteeMember[];
 }
+
