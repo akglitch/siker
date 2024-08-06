@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Snackbar, CircularProgress, Button } from '@mui/material';
+import { Snackbar, CircularProgress, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 interface Member {
@@ -29,6 +29,8 @@ const MemberSearch: React.FC = () => {
     type: 'success' as 'success' | 'error'
   });
   const [loading, setLoading] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editMember, setEditMember] = useState<Member | null>(null);
 
   const fetchSubcommitteeMembers = async () => {
     try {
@@ -53,7 +55,6 @@ const MemberSearch: React.FC = () => {
     }
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/members/search', { params: { contact: e.target.value } });
-      console.log('Search Response:', response.data); // Log the response data for debugging
       const allMembers: Member[] = response.data;
       const membersWithStatus = allMembers.map((member) => ({
         ...member,
@@ -126,6 +127,35 @@ const MemberSearch: React.FC = () => {
     }
   };
 
+  const handleEditMember = async () => {
+    if (!editMember) return;
+
+    setLoading(true);
+    try {
+      await axios.put(`https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`, editMember);
+      setNotification({ show: true, message: `${editMember.name} updated successfully`, type: 'success' });
+
+      await handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating member:', error);
+      setNotification({ show: true, message: 'Error updating member', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditDialog = (member: Member) => {
+    setEditMember(member);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (editMember) {
+      setEditMember({ ...editMember, [e.target.name]: e.target.value });
+    }
+  };
+
   const handleSubcommitteeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSubcommittee(e.target.value);
   };
@@ -163,7 +193,7 @@ const MemberSearch: React.FC = () => {
                 Subcommittee
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Action
+                Actions
               </th>
             </tr>
           </thead>
@@ -194,7 +224,13 @@ const MemberSearch: React.FC = () => {
                     </select>
                   )}
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap">
+                <td className="px-4 py-4 whitespace-nowrap space-x-2">
+                  <Button
+                    onClick={() => openEditDialog(member)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  >
+                    Edit
+                  </Button>
                   <Button
                     onClick={() => handleDeleteMember(member)}
                     className="bg-red-500 text-white px-4 py-2 rounded-md"
@@ -224,6 +260,45 @@ const MemberSearch: React.FC = () => {
           {notification.message}
         </Alert>
       </Snackbar>
+
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
+        <DialogTitle>Edit Member</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            name="name"
+            value={editMember?.name || ''}
+            onChange={handleEditInputChange}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            label="Contact"
+            name="contact"
+            value={editMember?.contact || ''}
+            onChange={handleEditInputChange}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            label="Gender"
+            name="gender"
+            value={editMember?.gender || ''}
+            onChange={handleEditInputChange}
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleEditMember} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
