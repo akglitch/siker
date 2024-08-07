@@ -132,10 +132,19 @@ const MemberSearch: React.FC = () => {
 
     setLoading(true);
     try {
-      await axios.put(`https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`, editMember);
+      const response = await axios.put(`https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`, editMember);
+      const updatedMember = response.data;
+
       setNotification({ show: true, message: `${editMember.name} updated successfully`, type: 'success' });
 
-      await handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
+      // Update the specific member in the results array
+      setResults(prevResults => prevResults.map(member => member._id === updatedMember._id ? updatedMember : member));
+
+      // Update the specific member in the subcommitteeMembers array if they belong to the selected subcommittee
+      if (subcommitteeMembers.some(subMember => subMember._id === updatedMember._id)) {
+        setSubcommitteeMembers(prevSubMembers => prevSubMembers.map(subMember => subMember._id === updatedMember._id ? updatedMember : subMember));
+      }
+
       setEditDialogOpen(false);
     } catch (error) {
       console.error('Error updating member:', error);
