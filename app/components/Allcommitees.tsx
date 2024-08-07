@@ -1,4 +1,3 @@
-// components/Subcommittees.tsx
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -19,6 +18,7 @@ interface Subcommittee {
 
 const Subcommitees: React.FC = () => {
   const [subcommittees, setSubcommittees] = useState<Subcommittee[]>([]);
+  const [refreshKey, setRefreshKey] = useState(new Date().toISOString());
 
   useEffect(() => {
     const fetchSubcommittees = async () => {
@@ -35,6 +35,19 @@ const Subcommitees: React.FC = () => {
     };
 
     fetchSubcommittees();
+  }, [refreshKey]); // Re-fetch data if refreshKey changes
+
+  useEffect(() => {
+    // Listen to local storage changes
+    const handleStorageChange = () => {
+      setRefreshKey(new Date().toISOString()); // Trigger refresh
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   return (
