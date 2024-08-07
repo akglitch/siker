@@ -141,9 +141,7 @@ const MemberSearch: React.FC = () => {
       setResults(prevResults => prevResults.map(member => member._id === updatedMember._id ? updatedMember : member));
 
       // Update the specific member in the subcommitteeMembers array if they belong to the selected subcommittee
-      if (subcommitteeMembers.some(subMember => subMember._id === updatedMember._id)) {
-        setSubcommitteeMembers(prevSubMembers => prevSubMembers.map(subMember => subMember._id === updatedMember._id ? updatedMember : subMember));
-      }
+      setSubcommitteeMembers(prevSubMembers => prevSubMembers.map(subMember => subMember._id === updatedMember._id ? updatedMember : subMember));
 
       setEditDialogOpen(false);
     } catch (error) {
