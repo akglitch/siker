@@ -39,9 +39,6 @@ const Subcommittees: React.FC = () => {
   useEffect(() => {
     fetchSubcommittees(); // Initial fetch
 
-    const intervalId = setInterval(fetchSubcommittees, 30000); // Poll every 30 seconds
-
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   return (
