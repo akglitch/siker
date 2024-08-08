@@ -38,6 +38,7 @@ const Subcommittees: React.FC = () => {
 
   useEffect(() => {
     fetchSubcommittees(); // Initial fetch
+
   }, []);
 
   return (
