@@ -107,7 +107,7 @@ const SubcommitteeMeetings: React.FC = () => {
   };
 
   return (
-    <Container>
+  
     <Grid container spacing={4}>
       {loading && <p>Loading...</p>}
       {subcommittees.map((subcommittee) => (
@@ -181,7 +181,7 @@ const SubcommitteeMeetings: React.FC = () => {
         </Grid>
       ))}
     </Grid>
-    </Container>
+  
   );
 };
 

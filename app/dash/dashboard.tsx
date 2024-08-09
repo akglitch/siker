@@ -2,11 +2,12 @@
 "use client";
 
 import React from 'react';
-import AddGovernmentAppointeeForm from '../components/AddGovernmentAppointeeForm';
-import AddAssemblyMemberForm from '../components/AddAssemblyMemberForm';
-import MemberSearch from '../components/MemberSearch';
+import AddGovernmentAppointeeForm from './AddGovernmentAppointeeForm';
+import AddAssemblyMemberForm from './AddAssemblyMemberForm';
+import MemberSearch from './MemberSearch';
 import Subcommitees from './Allcommitees';
 import { Container, Grid, Typography } from '@mui/material';
+import SubcommitteeMeetings from './Meetings';
 
 
 const Dashboard: React.FC = () => {
@@ -27,6 +28,9 @@ const Dashboard: React.FC = () => {
         </Grid>
         <Grid item xs={12}>
           <Subcommitees />
+        </Grid>
+        <Grid item xs={12}>
+          <SubcommitteeMeetings />
         </Grid>
       </Grid>
       
