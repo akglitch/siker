@@ -11,7 +11,7 @@ interface Member {
   contact: string;
   gender: string;
   memberType: string;
-  isInSelectedSubcommittee?: boolean;
+  isInSelectedSubcommittee?: boolean; // Optional property
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
@@ -71,7 +71,10 @@ const MemberSearch: React.FC = () => {
       setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
       return;
     }
-
+    if (subcommitteeMembers.filter(m => m._id === member._id).length >= 2) {
+      setNotification({ show: true, message: 'Member can only be part of 2 subcommittees', type: 'error' });
+      return;
+    }
     setLoading(true);
     try {
       await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
@@ -137,10 +140,7 @@ const MemberSearch: React.FC = () => {
 
       setNotification({ show: true, message: `${editMember.name} updated successfully`, type: 'success' });
 
-      // Update the specific member in the results array
       setResults(prevResults => prevResults.map(member => member._id === updatedMember._id ? updatedMember : member));
-
-      // Update the specific member in the subcommitteeMembers array if they belong to the selected subcommittee
       setSubcommitteeMembers(prevSubMembers => prevSubMembers.map(subMember => subMember._id === updatedMember._id ? updatedMember : subMember));
 
       setEditDialogOpen(false);
@@ -251,51 +251,45 @@ const MemberSearch: React.FC = () => {
         </table>
       </div>
 
-      {loading && (
-        <div className="flex justify-center items-center mt-4">
-          <CircularProgress />
-        </div>
-      )}
-
-      <Snackbar
-        open={notification.show}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={notification.type}>
-          {notification.message}
-        </Alert>
-      </Snackbar>
-
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
         <DialogTitle>Edit Member</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            name="name"
-            value={editMember?.name || ''}
-            onChange={handleEditInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Contact"
-            name="contact"
-            value={editMember?.contact || ''}
-            onChange={handleEditInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Gender"
-            name="gender"
-            value={editMember?.gender || ''}
-            onChange={handleEditInputChange}
-            fullWidth
-          />
+          {editMember && (
+            <div>
+              <TextField
+                label="Name"
+                name="name"
+                value={editMember.name}
+                onChange={handleEditInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Contact"
+                name="contact"
+                value={editMember.contact}
+                onChange={handleEditInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Gender"
+                name="gender"
+                value={editMember.gender}
+                onChange={handleEditInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Member Type"
+                name="memberType"
+                value={editMember.memberType}
+                onChange={handleEditInputChange}
+                fullWidth
+                margin="normal"
+              />
+            </div>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditDialogOpen(false)} color="primary">
@@ -306,6 +300,18 @@ const MemberSearch: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={notification.show} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={notification.type}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
+          <CircularProgress />
+        </div>
+      )}
     </div>
   );
 };
