@@ -46,7 +46,7 @@ const SubcommitteeMeetings: React.FC = () => {
   const fetchSubcommittees = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/subcommittees");
+      const response = await axios.get("https://kmabackend.onrender.com/api/subcommittees");
       setSubcommittees(response.data);
     } catch (error) {
       console.error("Error fetching subcommittees:", error);
@@ -80,7 +80,7 @@ const SubcommitteeMeetings: React.FC = () => {
     try {
       if (selectedAttendance[`${subcommitteeId}-${memberId}`]) {
         await axios.post(
-          "http://localhost:5000/api/attendance",
+          "https://kmabackend.onrender.com/api/attendance",
           {
             subcommitteeId,
             memberId,

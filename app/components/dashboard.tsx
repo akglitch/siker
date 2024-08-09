@@ -7,7 +7,7 @@ import AddAssemblyMemberForm from '../components/AddAssemblyMemberForm';
 import MemberSearch from '../components/MemberSearch';
 import Subcommitees from './Allcommitees';
 import { Container, Grid, Typography } from '@mui/material';
-import Link from 'next/link';
+
 
 const Dashboard: React.FC = () => {
   return (
@@ -29,14 +29,7 @@ const Dashboard: React.FC = () => {
           <Subcommitees />
         </Grid>
       </Grid>
-      <Typography variant="body2" color="inherit" align="center" >
-      {"Copyright © "}
-      <Link color="inherit" href="#">
-        Kaytee
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
+      
     </Container>
   );
 };
