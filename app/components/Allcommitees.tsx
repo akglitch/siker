@@ -23,7 +23,7 @@ const Subcommittees: React.FC = () => {
   const fetchSubcommittees = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees');
+      const response = await axios.get('http://localhost:5000/api/subcommittees');
       const sortedSubcommittees = response.data.sort((a: Subcommittee, b: Subcommittee) => {
         const order = ['Transport', 'Revenue', 'Travel'];
         return order.indexOf(a.name) - order.indexOf(b.name);
@@ -38,10 +38,6 @@ const Subcommittees: React.FC = () => {
 
   useEffect(() => {
     fetchSubcommittees(); // Initial fetch
-
-    const intervalId = setInterval(fetchSubcommittees, 30000); // Poll every 30 seconds
-
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   return (
