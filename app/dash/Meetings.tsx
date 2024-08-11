@@ -123,7 +123,7 @@ const SubcommitteeMeetings: React.FC = () => {
                     <TableRow>
                       <TableCell>Name</TableCell>
                       <TableCell>Meetings Attended</TableCell>
-                      <TableCell>Amount (USD)</TableCell>
+                      <TableCell>Amount (GH₵)</TableCell>
                       <TableCell>Mark Attendance</TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
