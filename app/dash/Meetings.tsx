@@ -39,11 +39,12 @@ interface Subcommittee {
 }
 
 interface ReportRecord {
+  subcommitteeName: string;
   name: string;
-  amount: number;
+  meetingsAttended: number;
+  totalAmount: number;
 }
 
-// Define the amount per meeting
 const amountPerMeeting = 100;
 
 const SubcommitteeMeetings: React.FC = () => {
@@ -54,11 +55,12 @@ const SubcommitteeMeetings: React.FC = () => {
   }>({});
   const [attendanceReport, setAttendanceReport] = useState<ReportRecord[]>([]);
 
-  // Fetch the list of subcommittees and their members from the backend
   const fetchSubcommittees = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("https://kmabackend.onrender.com/api/subcommittees");
+      const response = await axios.get(
+        "https://kmabackend.onrender.com/api/subcommittees"
+      );
       setSubcommittees(response.data);
     } catch (error) {
       console.error("Error fetching subcommittees:", error);
@@ -71,7 +73,6 @@ const SubcommitteeMeetings: React.FC = () => {
     fetchSubcommittees();
   }, []);
 
-  // Handle the checkbox change for marking attendance
   const handleAttendanceChange = (
     subcommitteeId: string,
     memberId: string
@@ -83,14 +84,13 @@ const SubcommitteeMeetings: React.FC = () => {
     }));
   };
 
-  // Handle the submission of attendance data to the backend
   const handleSubmitAttendance = async (
     subcommitteeId: string,
     memberId: string
   ) => {
     try {
       if (selectedAttendance[`${subcommitteeId}-${memberId}`]) {
-        const response = await axios.post(
+        await axios.post(
           "https://kmabackend.onrender.com/api/attendance",
           {
             subcommitteeId,
@@ -98,14 +98,12 @@ const SubcommitteeMeetings: React.FC = () => {
           }
         );
 
-        // Clear the selected attendance state for the specific member
         setSelectedAttendance((prev) => {
           const updated = { ...prev };
           delete updated[`${subcommitteeId}-${memberId}`];
           return updated;
         });
 
-        // Refresh data after attendance is marked
         fetchSubcommittees();
       }
     } catch (error) {
@@ -113,19 +111,30 @@ const SubcommitteeMeetings: React.FC = () => {
     }
   };
 
-  // Fetch and display the attendance report
   const handleFetchReport = async () => {
     try {
-      const response = await axios.get("https://kmabackend.onrender.com/api/attendance/report");
-      setAttendanceReport(response.data);
+      const response = await axios.get(
+        "https://kmabackend.onrender.com/api/report"
+      );
+
+      // Flatten the subcommittee data into a single array of members with their subcommittee names
+      const flattenedData = response.data.flatMap((subcommittee: any) =>
+        subcommittee.members.map((member: any) => ({
+          subcommitteeName: subcommittee.subcommitteeName,
+          name: member.name,
+          meetingsAttended: member.meetingsAttended,
+          totalAmount: member.totalAmount,
+        }))
+      );
+
+      setAttendanceReport(flattenedData);
     } catch (error) {
       console.error("Error fetching attendance report:", error);
     }
   };
 
-  // Print the report
   const handlePrintReport = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.open();
       printWindow.document.write(`
@@ -133,9 +142,18 @@ const SubcommitteeMeetings: React.FC = () => {
           <head>
             <title>Attendance Report</title>
             <style>
+              body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+              }
+              h1 {
+                text-align: center;
+                margin-bottom: 20px;
+              }
               table {
                 width: 100%;
                 border-collapse: collapse;
+                margin-bottom: 20px;
               }
               table, th, td {
                 border: 1px solid black;
@@ -147,6 +165,9 @@ const SubcommitteeMeetings: React.FC = () => {
               th {
                 background-color: #f2f2f2;
               }
+              .total {
+                font-weight: bold;
+              }
             </style>
           </head>
           <body>
@@ -154,17 +175,25 @@ const SubcommitteeMeetings: React.FC = () => {
             <table>
               <thead>
                 <tr>
+                  <th>Subcommittee</th>
                   <th>Name</th>
+                  <th>Meetings Attended</th>
                   <th>Amount (GH₵)</th>
                 </tr>
               </thead>
               <tbody>
-                ${attendanceReport.map(record => `
+                ${attendanceReport
+                  .map(
+                    (record) => `
                   <tr>
+                    <td>${record.subcommitteeName}</td>
                     <td>${record.name}</td>
-                    <td>${record.amount}</td>
+                    <td>${record.meetingsAttended}</td>
+                    <td>${record.totalAmount}</td>
                   </tr>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </tbody>
             </table>
             <script>
@@ -207,15 +236,17 @@ const SubcommitteeMeetings: React.FC = () => {
                     </TableHead>
                     <TableBody>
                       {subcommittee.members.map((member) => {
-                        // Ensure attendance is initialized
                         const attendance = subcommittee.attendance || [];
-                        
-                        // Check if attendance is already marked for today
+
                         const today = new Date();
-                        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-                        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+                        const startOfDay = new Date(
+                          today.setHours(0, 0, 0, 0)
+                        );
+                        const endOfDay = new Date(
+                          today.setHours(23, 59, 59, 999)
+                        );
                         const isAttendanceMarkedToday = attendance.some(
-                          record =>
+                          (record) =>
                             record.memberId === member.memberId &&
                             new Date(record.date) >= startOfDay &&
                             new Date(record.date) <= endOfDay
@@ -225,9 +256,7 @@ const SubcommitteeMeetings: React.FC = () => {
                           <TableRow key={member.memberId}>
                             <TableCell>{member.name}</TableCell>
                             <TableCell>{member.meetingsAttended}</TableCell>
-                            <TableCell>
-                              {member.totalAmount}
-                            </TableCell>
+                            <TableCell>{member.totalAmount}</TableCell>
                             <TableCell>
                               <Checkbox
                                 checked={
@@ -276,19 +305,17 @@ const SubcommitteeMeetings: React.FC = () => {
         ))}
       </Grid>
 
-      {/* Single button to fetch all reports */}
       <Button
         variant="contained"
         color="secondary"
         onClick={handleFetchReport}
-        style={{ marginTop: '16px' }}
+        style={{ marginTop: "16px" }}
       >
         Generate Full Report
       </Button>
 
-      {/* Report Section */}
       {attendanceReport.length > 0 && (
-        <Grid container spacing={4} style={{ marginTop: '32px' }}>
+        <Grid container spacing={4} style={{ marginTop: "32px" }}>
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -299,15 +326,19 @@ const SubcommitteeMeetings: React.FC = () => {
                   <Table>
                     <TableHead>
                       <TableRow>
+                        <TableCell>Subcommittee</TableCell>
                         <TableCell>Name</TableCell>
+                        <TableCell>Meetings Attended</TableCell>
                         <TableCell>Amount (GH₵)</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {attendanceReport.map((record, index) => (
                         <TableRow key={index}>
+                          <TableCell>{record.subcommitteeName}</TableCell>
                           <TableCell>{record.name}</TableCell>
-                          <TableCell>{record.amount}</TableCell>
+                          <TableCell>{record.meetingsAttended}</TableCell>
+                          <TableCell>{record.totalAmount}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -317,7 +348,7 @@ const SubcommitteeMeetings: React.FC = () => {
                   variant="contained"
                   color="primary"
                   onClick={handlePrintReport}
-                  style={{ marginTop: '16px' }}
+                  style={{ marginTop: "16px" }}
                 >
                   Print Report
                 </Button>
