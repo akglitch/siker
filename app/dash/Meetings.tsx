@@ -16,6 +16,9 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Snackbar,
+  Alert,
+  AlertColor,
 } from "@mui/material";
 
 // Define the necessary interfaces for types
@@ -57,20 +60,36 @@ const SubcommitteeMeetings: React.FC = () => {
     [key: string]: { attendance: boolean; convener: boolean };
   }>({});
   const [attendanceReport, setAttendanceReport] = useState<ReportRecord[]>([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  // Show snackbar notification
+  const showSnackbar = (message: string, severity: AlertColor = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
 
   // Fetch Subcommittees data
   const fetchSubcommittees = async () => {
     setLoading(true);
     try {
       const response = await axios.get<Subcommittee[]>(
-        "http://localhost:5000/api/subcommittees"
+        "https://kmabackend.onrender.com/api/subcommittees"
       );
       setSubcommittees(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Error fetching subcommittees:", error.message);
+        showSnackbar("Error fetching subcommittees", "error");
       } else {
         console.error("Unexpected error:", error);
+        showSnackbar("Unexpected error occurred", "error");
       }
     } finally {
       setLoading(false);
@@ -108,7 +127,7 @@ const SubcommitteeMeetings: React.FC = () => {
         selectedAttendance[key] || {};
 
       if (attendance || !convener) {
-        await axios.post("http://localhost:5000/api/attendance", {
+        await axios.post("https://kmabackend.onrender.com/api/attendance", {
           subcommitteeId,
           memberId,
           convener,
@@ -121,16 +140,20 @@ const SubcommitteeMeetings: React.FC = () => {
         });
 
         fetchSubcommittees(); // Refresh the subcommittees data
+        showSnackbar("Attendance submitted successfully", "success");
       } else {
-        alert("Cannot submit only with convener selected");
+        showSnackbar("Cannot submit only with convener selected", "warning");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error("Error submitting attendance:", error.message);
-        alert(error.response?.data?.message || "Error submitting attendance");
+        showSnackbar(
+          error.response?.data?.message || "Error submitting attendance",
+          "error"
+        );
       } else {
         console.error("Unexpected error:", error);
-        alert("An unexpected error occurred");
+        showSnackbar("An unexpected error occurred", "error");
       }
     }
   };
@@ -139,7 +162,7 @@ const SubcommitteeMeetings: React.FC = () => {
   const handleFetchReport = async () => {
     try {
       const response = await axios.get<Subcommittee[]>(
-        "http://localhost:5000/api/report"
+        "https://kmabackend.onrender.com/api/report"
       );
       console.log("Report data from API:", response.data); // Debugging log
 
@@ -154,13 +177,17 @@ const SubcommitteeMeetings: React.FC = () => {
       );
 
       setAttendanceReport(flattenedData);
+      showSnackbar("Report fetched successfully", "success");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error("Error fetching attendance report:", error.message);
-        alert(error.response?.data?.message || "Error fetching attendance report");
+        showSnackbar(
+          error.response?.data?.message || "Error fetching attendance report",
+          "error"
+        );
       } else {
         console.error("Unexpected error:", error);
-        alert("An unexpected error occurred");
+        showSnackbar("An unexpected error occurred", "error");
       }
     }
   };
@@ -290,7 +317,9 @@ const SubcommitteeMeetings: React.FC = () => {
                             <TableCell>{member.totalAmount || 0}</TableCell>
                             <TableCell>
                               <Checkbox
-                                checked={!!selectedAttendance[key]?.attendance}
+                                checked={
+                                  selectedAttendance[key]?.attendance || false
+                                }
                                 onChange={() =>
                                   handleAttendanceChange(
                                     subcommittee._id,
@@ -298,13 +327,14 @@ const SubcommitteeMeetings: React.FC = () => {
                                     "attendance"
                                   )
                                 }
-                                color="primary"
                                 disabled={isAttendanceMarkedToday}
                               />
                             </TableCell>
                             <TableCell>
                               <Checkbox
-                                checked={!!selectedAttendance[key]?.convener}
+                                checked={
+                                  selectedAttendance[key]?.convener || false
+                                }
                                 onChange={() =>
                                   handleAttendanceChange(
                                     subcommittee._id,
@@ -312,8 +342,7 @@ const SubcommitteeMeetings: React.FC = () => {
                                     "convener"
                                   )
                                 }
-                                color="secondary"
-                                disabled={isAttendanceMarkedToday}
+                                disabled={!selectedAttendance[key]?.attendance}
                               />
                             </TableCell>
                             <TableCell>
@@ -392,6 +421,21 @@ const SubcommitteeMeetings: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Snackbar Notification */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
