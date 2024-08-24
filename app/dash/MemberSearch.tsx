@@ -43,9 +43,6 @@ const MemberSearch: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchSubcommitteeMembers();
-  }, [selectedSubcommittee]);
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
