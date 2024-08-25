@@ -16,7 +16,7 @@ export default function TotalAttendance() {
   useEffect(() => {
     const fetchTotalAttendance = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/attendance/total');
+        const response = await axios.get('https://kmabackend.onrender.com/api/attendance/total');
         setTotalAttendance(response.data.total);
       } catch (error) {
         console.error('Error fetching total attendance:', error);
