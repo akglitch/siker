@@ -17,6 +17,28 @@ import {
   Typography,
 } from "@mui/material";
 
+// Add this section if you haven't imported the Subcommittee type
+interface Member {
+  memberId: string;
+  memberType: string;
+  name: string;
+  meetingsAttended: number;
+  totalAmount: number;
+  isConvener: boolean;
+}
+
+interface AttendanceRecord {
+  memberId: string;
+  date: Date;
+}
+
+interface Subcommittee {
+  _id: string;
+  name: string;
+  members: Member[];
+  attendance: AttendanceRecord[];
+}
+
 interface ReportRecord {
   subcommitteeName: string;
   name: string;
