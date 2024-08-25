@@ -1,4 +1,3 @@
-// components/AddGovernmentAppointeeForm.tsx
 "use client";
 
 import React, { useState } from 'react';
@@ -14,6 +13,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Typography,
 } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { SelectChangeEvent } from '@mui/material/Select';
@@ -80,8 +80,10 @@ const AddGovernmentAppointeeForm: React.FC = () => {
   };
 
   return (
-    <Box p={2} mb={4} boxShadow={3} borderRadius={2} bgcolor="white">
-      <h2 className="text-xl font-bold mb-4">Add Government Appointee</h2>
+    <Box p={2} mb={4} boxShadow={3} borderRadius={2} bgcolor="background.paper">
+      <Typography variant="h6" gutterBottom>
+        Add Government Appointee
+      </Typography>
       <form onSubmit={handleSubmit}>
         <Box mb={2}>
           <TextField
@@ -114,14 +116,12 @@ const AddGovernmentAppointeeForm: React.FC = () => {
           />
         </Box>
         <Box mb={2}>
-          <FormControl fullWidth>
+          <FormControl fullWidth required>
             <InputLabel>Gender</InputLabel>
             <Select
               name="gender"
               value={formData.gender}
               onChange={handleSelectChange}
-              fullWidth
-              required
             >
               <MenuItem value="Male">Male</MenuItem>
               <MenuItem value="Female">Female</MenuItem>
@@ -138,7 +138,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
           >
             {saving ? 'Saving...' : 'Add Government Appointee'}
           </Button>
-          <Button variant="contained" onClick={handleClear} color="secondary">
+          <Button variant="outlined" onClick={handleClear} color="secondary">
             Clear
           </Button>
         </Box>
