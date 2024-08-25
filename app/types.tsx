@@ -5,6 +5,7 @@ export interface IAssemblyMember {
   electoralArea: string;
   contact: string;
   gender: 'Male' | 'Female';
+
 }
 
 // Government Appointee Type
@@ -14,6 +15,7 @@ export interface IGovernmentAppointee {
   electoralArea: string;
   contact: string;
   gender: 'Male' | 'Female';
+
 }
 
 // Subcommittee Member Type
