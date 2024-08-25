@@ -44,15 +44,21 @@ export const MainListItems  = (props: any) => {
        <ListItemIcon>
          <Note />
        </ListItemIcon>
-       <ListItemText primary="Attendance" />
+       <ListItemText primary="Members" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(4)}>
+       <ListItemIcon>
+         <Note />
+       </ListItemIcon>
+       <ListItemText primary="Attendance" />
+     </ListItemButton>
+     <ListItemButton onClick={() => setCurrView(5)}>
       <ListItemIcon>
         <Note/>
       </ListItemIcon>
       <ListItemText primary="Report" />
     </ListItemButton>
-    <ListItemButton onClick={() => setCurrView(5)}>
+    <ListItemButton onClick={() => setCurrView(6)}>
        <ListItemIcon>
          <Note />
        </ListItemIcon>

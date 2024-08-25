@@ -36,6 +36,7 @@ import TotalAttendance from "./TotalAttendance";
 import Subcommittees from "./Allcommitees";
 import AttendanceReport from "./AttendanceReport";
 import AttendanceTracking from "./AttendanceTracking";
+import Members from "./MemberSearch";
 const drawerWidth: number = 240;
 
 interface AppBarProps extends MuiAppBarProps {
@@ -134,6 +135,7 @@ export default function Dashboard() {
     <MainView key={Math.random()} />,
     <AddAssemblyMemberForm key={Math.random()} />,
     <AddGovernmentAppointeeForm key={Math.random()} />,
+    <Members key={Math.random()} />,
     <AttendanceTracking key={Math.random()} />,
     <AttendanceReport key={Math.random()} />,
     <Subcommittees key={Math.random()} />,
