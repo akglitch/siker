@@ -8,7 +8,7 @@ export const ColorModeContext = React.createContext({
 
 export const useThemeHook = () => {
   const isDark = false;
-  const userPref = isDark || typeof isDark == undefined ? "dark" : "light";
+  const userPref = isDark || typeof isDark === "undefined" ? "dark" : "light";
   const [mode, setMode] = React.useState<"light" | "dark">(userPref);
   const colorMode = React.useMemo(
     () => ({
@@ -25,7 +25,7 @@ export const useThemeHook = () => {
     const lhmode = localStorage.getItem("mode");
     const w = window.matchMedia("(prefers-color-scheme: dark)");
     if (!lhmode && w.matches) setMode("dark");
-    else setMode(lhmode == "dark" ? "dark" : "light");
+    else setMode(lhmode === "dark" ? "dark" : "light");
   }, []);
 
   const theme = React.useMemo(
@@ -37,31 +37,31 @@ export const useThemeHook = () => {
             ? {
                 // palette values for light mode
                 primary: {
-                  main: "#00bbf9",
+                  main: "#00aaff", // Soft Blue
                 },
                 secondary: {
-                  main: "#219ebc",
+                  main: "#ff6f61", // Coral
                 },
                 text: {
-                  primary: "#023047",
-                  secondary: "#264653",
+                  primary: "#2f4f4f", // Dark Slate Gray
+                  secondary: "#696969", // Dim Gray
                 },
               }
             : {
                 // palette values for dark mode
                 primary: {
-                  main: "#34a0a4",
+                  main: "#008080", // Teal
                 },
                 secondary: {
-                  main: "#76c893",
+                  main: "#8bc34a", // Light Green
                 },
                 background: {
-                  default: "#0a0908",
-                  paper: "#00171f",
+                  default: "#121212", // Very Dark Gray
+                  paper: "#1c1c1c", // Charcoal Gray
                 },
                 text: {
-                  primary: "#fff",
-                  secondary: "#8d99ae",
+                  primary: "#e0e0e0", // Light Gray
+                  secondary: "#c0c0c0", // Silver
                 },
               }),
         },

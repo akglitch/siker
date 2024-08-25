@@ -144,7 +144,7 @@ const AttendanceTracking: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="container mx-auto">
       <Typography variant="h5" component="div" gutterBottom>
         ATTENDANCE TRACKING
       </Typography>
