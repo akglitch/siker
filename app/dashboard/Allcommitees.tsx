@@ -42,6 +42,7 @@ const Subcommittees: React.FC = () => {
   }, []);
 
   return (
+    <div className="container mx-auto">
     <Grid container spacing={4}>
       {loading && <p>Loading...</p>}
       {subcommittees.length === 0 ? (
@@ -78,6 +79,7 @@ const Subcommittees: React.FC = () => {
         ))
       )}
     </Grid>
+    </div>
   );
 };
 

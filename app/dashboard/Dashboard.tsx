@@ -164,9 +164,15 @@ export default function Dashboard() {
               sx={{ color: theme.palette.mode === "light" ? "black" : "white" }}
             />
           </IconButton>
-          <Typography  component="h1" variant="h6"  color="inherit" noWrap sx={{ flexGrow: 1 }}>
-            Member Management System
-          </Typography>
+          <Typography
+  component="h1"
+  variant="h6"
+  color="textPrimary"
+  noWrap
+  sx={{ flexGrow: 1 }}
+>
+  Member Management System
+</Typography>
           <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
             {theme.palette.mode === "dark" ? (
               <Brightness7 sx={{ color: "white" }} />

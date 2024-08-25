@@ -175,7 +175,7 @@ const Members: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="container mx-auto">
       <TextField
         label="Search members by contact"
         value={query}

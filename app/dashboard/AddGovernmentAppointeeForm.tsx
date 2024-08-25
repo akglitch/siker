@@ -80,6 +80,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
   };
 
   return (
+    <div className="container mx-auto">
     <Box p={2} mb={4} boxShadow={3} borderRadius={2} bgcolor="background.paper">
       <Typography variant="h6" gutterBottom>
         Add Government Appointee
@@ -154,6 +155,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
         </Alert>
       </Snackbar>
     </Box>
+    </div>
   );
 };
 
