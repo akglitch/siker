@@ -43,23 +43,12 @@ interface Subcommittee {
   attendance: AttendanceRecord[];
 }
 
-interface ReportRecord {
-  subcommitteeName: string;
-  name: string;
-  meetingsAttended: number;
-  totalAmount: number;
-}
-
-const amountPerMeeting = 100;
-const convenerBonus = 50;
-
-const SubcommitteeMeetings: React.FC = () => {
+const AttendanceTracking: React.FC = () => {
   const [subcommittees, setSubcommittees] = useState<Subcommittee[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState<{
     [key: string]: { attendance: boolean; convener: boolean };
   }>({});
-  const [attendanceReport, setAttendanceReport] = useState<ReportRecord[]>([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
@@ -68,14 +57,12 @@ const SubcommitteeMeetings: React.FC = () => {
     setSnackbarOpen(false);
   };
 
-  // Show snackbar notification
   const showSnackbar = (message: string, severity: AlertColor = "info") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
 
-  // Fetch Subcommittees data
   const fetchSubcommittees = async () => {
     setLoading(true);
     try {
@@ -100,7 +87,6 @@ const SubcommitteeMeetings: React.FC = () => {
     fetchSubcommittees();
   }, []);
 
-  // Handle changes in attendance and convener selection
   const handleAttendanceChange = (
     subcommitteeId: string,
     memberId: string,
@@ -116,7 +102,6 @@ const SubcommitteeMeetings: React.FC = () => {
     }));
   };
 
-  // Submit attendance data to the backend
   const handleSubmitAttendance = async (
     subcommitteeId: string,
     memberId: string
@@ -139,7 +124,7 @@ const SubcommitteeMeetings: React.FC = () => {
           return updated;
         });
 
-        fetchSubcommittees(); // Refresh the subcommittees data
+        fetchSubcommittees();
         showSnackbar("Attendance submitted successfully", "success");
       } else {
         showSnackbar("Cannot submit only with convener selected", "warning");
@@ -155,117 +140,6 @@ const SubcommitteeMeetings: React.FC = () => {
         console.error("Unexpected error:", error);
         showSnackbar("An unexpected error occurred", "error");
       }
-    }
-  };
-
-  // Fetch the attendance report from the backend
-  const handleFetchReport = async () => {
-    try {
-      const response = await axios.get<Subcommittee[]>(
-        "https://kmabackend.onrender.com/api/report"
-      );
-      console.log("Report data from API:", response.data); // Debugging log
-
-      const flattenedData: ReportRecord[] = response.data.flatMap(
-        (subcommittee) =>
-          subcommittee.members.map((member) => ({
-            subcommitteeName: subcommittee.name,
-            name: member.name,
-            meetingsAttended: member.meetingsAttended,
-            totalAmount: member.totalAmount,
-          }))
-      );
-
-      setAttendanceReport(flattenedData);
-      showSnackbar("Report fetched successfully", "success");
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.error("Error fetching attendance report:", error.message);
-        showSnackbar(
-          error.response?.data?.message || "Error fetching attendance report",
-          "error"
-        );
-      } else {
-        console.error("Unexpected error:", error);
-        showSnackbar("An unexpected error occurred", "error");
-      }
-    }
-  };
-
-  // Print the attendance report
-  const handlePrintReport = () => {
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.open();
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Attendance Report</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                margin: 20px;
-              }
-              h1 {
-                text-align: center;
-                margin-bottom: 20px;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-              }
-              table, th, td {
-                border: 1px solid black;
-              }
-              th, td {
-                padding: 8px;
-                text-align: left;
-              }
-              th {
-                background-color: #f2f2f2;
-              }
-              .total {
-                font-weight: bold;
-              }
-            </style>
-          </head>
-          <body>
-            <h1>Attendance Report</h1>
-            <table>
-              <thead>
-                <tr>
-                  <th>Subcommittee</th>
-                  <th>Name</th>
-                  <th>Meetings Attended</th>
-                  <th>Amount (GH₵)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${attendanceReport
-                  .map(
-                    (record) => `
-                  <tr>
-                    <td>${record.subcommitteeName}</td>
-                    <td>${record.name}</td>
-                    <td>${record.meetingsAttended}</td>
-                    <td>${record.totalAmount}</td>
-                  </tr>
-                `
-                  )
-                  .join("")}
-              </tbody>
-            </table>
-            <script>
-              window.print();
-              window.onafterprint = function() {
-                window.close();
-              };
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
     }
   };
 
@@ -372,56 +246,6 @@ const SubcommitteeMeetings: React.FC = () => {
         ))}
       </Grid>
 
-      <Typography variant="h5" component="div" gutterBottom>
-        Attendance Report
-      </Typography>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleFetchReport}
-        style={{ marginBottom: "20px" }}
-      >
-        Fetch Attendance Report
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handlePrintReport}
-        style={{ marginBottom: "20px", marginLeft: "20px" }}
-      >
-        Print Report
-      </Button>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Subcommittee</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Meetings Attended</TableCell>
-              <TableCell>Amount (GH₵)</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {attendanceReport.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} align="center">
-                  No data available
-                </TableCell>
-              </TableRow>
-            ) : (
-              attendanceReport.map((record, index) => (
-                <TableRow key={index}>
-                  <TableCell>{record.subcommitteeName}</TableCell>
-                  <TableCell>{record.name}</TableCell>
-                  <TableCell>{record.meetingsAttended}</TableCell>
-                  <TableCell>{record.totalAmount}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
       {/* Snackbar Notification */}
       <Snackbar
         open={snackbarOpen}
@@ -440,4 +264,4 @@ const SubcommitteeMeetings: React.FC = () => {
   );
 };
 
-export default SubcommitteeMeetings;
+export default AttendanceTracking;

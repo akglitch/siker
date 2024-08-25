@@ -18,7 +18,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props,
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const MemberSearch: React.FC = () => {
+const Members: React.FC = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Member[]>([]);
   const [subcommitteeMembers, setSubcommitteeMembers] = useState<Member[]>([]);
@@ -313,4 +313,4 @@ const MemberSearch: React.FC = () => {
   );
 };
 
-export default MemberSearch;
+export default Members;
