@@ -5,6 +5,7 @@ export interface IAssemblyMember {
   electoralArea: string;
   contact: string;
   gender: 'Male' | 'Female';
+  isConvener: boolean;
 
 }
 
@@ -15,6 +16,7 @@ export interface IGovernmentAppointee {
   electoralArea: string;
   contact: string;
   gender: 'Male' | 'Female';
+  isConvener: boolean;
 
 }
 

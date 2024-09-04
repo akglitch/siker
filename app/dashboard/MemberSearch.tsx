@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import  { AxiosError } from 'axios';
+
 import {
   Snackbar,
   CircularProgress,
@@ -30,9 +32,12 @@ interface Member {
   contact: string;
   gender: string;
   memberType: string;
+  isConvener?: boolean;
   isInSelectedSubcommittee?: boolean;
 }
-
+interface ErrorResponse {
+  message?: string;
+}
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -62,6 +67,10 @@ const Members: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    fetchSubcommitteeMembers();
+  }, [selectedSubcommittee]);
+
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     if (e.target.value.trim() === '') {
@@ -88,29 +97,49 @@ const Members: React.FC = () => {
       setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
       return;
     }
+  
+    // Check if the member is already in two subcommittees
     if (subcommitteeMembers.filter((m) => m._id === member._id).length >= 2) {
       setNotification({ show: true, message: 'Member can only be part of 2 subcommittees', type: 'error' });
       return;
     }
+  
+    // Determine if the member should be a convener
+    let updatedIsConvener = false; // Default to false
+  
+    if (member.isConvener) {
+      // If the member is a convener in another subcommittee, they should not be a convener here
+      updatedIsConvener = !subcommitteeMembers.some((m) => m._id === member._id && m.isConvener);
+    }
+  
     setLoading(true);
     try {
-      await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
+      const response = await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
         subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
+        isConvener: updatedIsConvener,
       });
-
+  
       setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
-
+  
       await fetchSubcommitteeMembers();
       handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
     } catch (error) {
-      console.error('Error adding member to subcommittee:', error);
-      setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+      if (axios.isAxiosError(error)) {
+        const errorResponse = error.response?.data as ErrorResponse;
+        const errorMessage = errorResponse.message || error.message || 'Unknown error';
+        console.error('Error adding member to subcommittee:', errorMessage);
+        setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+      } else {
+        console.error('Unexpected error:', error);
+        setNotification({ show: true, message: 'Unexpected error occurred', type: 'error' });
+      }
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleDeleteMember = async (member: Member) => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
@@ -223,6 +252,11 @@ const Members: React.FC = () => {
                         <MenuItem value="Revenue">Revenue</MenuItem>
                         <MenuItem value="Transport">Transport</MenuItem>
                       </Select>
+                    )}
+                    {member.isConvener && (
+                      <Typography variant="body2" color="textSecondary">
+                        (Convener)
+                      </Typography>
                     )}
                   </TableCell>
                   <TableCell>
