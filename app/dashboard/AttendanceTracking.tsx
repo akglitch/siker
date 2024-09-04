@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -47,7 +45,7 @@ const AttendanceTracking: React.FC = () => {
   const [subcommittees, setSubcommittees] = useState<Subcommittee[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState<{
-    [key: string]: { attendance: boolean; convener: boolean };
+    [key: string]: { attendance: boolean };
   }>({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -89,15 +87,13 @@ const AttendanceTracking: React.FC = () => {
 
   const handleAttendanceChange = (
     subcommitteeId: string,
-    memberId: string,
-    field: "attendance" | "convener"
+    memberId: string
   ) => {
     const key = `${subcommitteeId}-${memberId}`;
     setSelectedAttendance((prev) => ({
       ...prev,
       [key]: {
-        ...prev[key],
-        [field]: !prev[key]?.[field],
+        attendance: !prev[key]?.attendance,
       },
     }));
   };
@@ -108,14 +104,12 @@ const AttendanceTracking: React.FC = () => {
   ) => {
     try {
       const key = `${subcommitteeId}-${memberId}`;
-      const { attendance = false, convener = false } =
-        selectedAttendance[key] || {};
+      const { attendance = false } = selectedAttendance[key] || {};
 
-      if (attendance || !convener) {
-        await axios.post("https://kmabackend.onrender.com/api/attendance", {
+      if (attendance) {
+        await axios.post("https://kmabackend.onrender.com/api/mark", {
           subcommitteeId,
           memberId,
-          convener,
         });
 
         setSelectedAttendance((prev) => {
@@ -127,7 +121,7 @@ const AttendanceTracking: React.FC = () => {
         fetchSubcommittees();
         showSnackbar("Attendance submitted successfully", "success");
       } else {
-        showSnackbar("Cannot submit only with convener selected", "warning");
+        showSnackbar("Please mark attendance before submitting", "warning");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -150,6 +144,7 @@ const AttendanceTracking: React.FC = () => {
       </Typography>
       <Grid container spacing={4}>
         {loading && <p>Loading...</p>}
+        {!loading && subcommittees.length === 0 && <p>No subcommittees found.</p>}
         {subcommittees.map((subcommittee) => (
           <Grid item xs={12} md={6} key={subcommittee._id}>
             <Card>
@@ -165,24 +160,27 @@ const AttendanceTracking: React.FC = () => {
                         <TableCell>Meetings Attended</TableCell>
                         <TableCell>Total Amount (GH₵)</TableCell>
                         <TableCell>Attendance</TableCell>
-                        <TableCell>Mark as Convener</TableCell>
+                        <TableCell>Portfolio</TableCell>
                         <TableCell>Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {subcommittee.members.map((member) => {
+                      {subcommittee.members?.map((member) => {
                         const key = `${subcommittee._id}-${member.memberId}`;
-                        const isAttendanceMarkedToday = subcommittee.attendance.some(
+                        const isAttendanceMarkedToday = subcommittee.attendance?.some(
                           (record) => {
+                            if (!record.date) return false;
                             const recordDate = new Date(record.date);
                             const today = new Date();
+                            // Reset the time to midnight for comparison
+                            recordDate.setHours(0, 0, 0, 0);
+                            today.setHours(0, 0, 0, 0);
                             return (
                               record.memberId === member.memberId &&
-                              recordDate.toDateString() ===
-                                today.toDateString()
+                              recordDate.getTime() === today.getTime()
                             );
                           }
-                        );
+                        ) || false; // Default to false if attendance is undefined
 
                         return (
                           <TableRow key={member.memberId}>
@@ -191,33 +189,18 @@ const AttendanceTracking: React.FC = () => {
                             <TableCell>{member.totalAmount || 0}</TableCell>
                             <TableCell>
                               <Checkbox
-                                checked={
-                                  selectedAttendance[key]?.attendance || false
-                                }
+                                checked={selectedAttendance[key]?.attendance || false}
                                 onChange={() =>
                                   handleAttendanceChange(
                                     subcommittee._id,
-                                    member.memberId,
-                                    "attendance"
+                                    member.memberId
                                   )
                                 }
                                 disabled={isAttendanceMarkedToday}
                               />
                             </TableCell>
                             <TableCell>
-                              <Checkbox
-                                checked={
-                                  selectedAttendance[key]?.convener || false
-                                }
-                                onChange={() =>
-                                  handleAttendanceChange(
-                                    subcommittee._id,
-                                    member.memberId,
-                                    "convener"
-                                  )
-                                }
-                                disabled={!selectedAttendance[key]?.attendance}
-                              />
+                              {member.isConvener ? "Convener" : "Member"}
                             </TableCell>
                             <TableCell>
                               <Button
