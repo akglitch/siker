@@ -37,7 +37,7 @@ const GeneralMeetingAttendance: React.FC = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/generalmembers');
+        const response = await axios.get('https://kmabackend.onrender.com/api/generalmembers');
         const membersWithAttendance = response.data.map((member: Member) => ({
           ...member,
           attended: false,
@@ -73,7 +73,7 @@ const GeneralMeetingAttendance: React.FC = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/general-meeting/attendance', {
+      await axios.post('https://kmabackend.onrender.com/api/general-meeting/attendance', {
         members: [{ memberId: member._id, attended: member.attended }],
       });
 
@@ -104,7 +104,7 @@ const GeneralMeetingAttendance: React.FC = () => {
 
   const generatePrintableReport = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/generalreport');
+      const response = await axios.get('https://kmabackend.onrender.com/api/generalreport');
       const reportData = response.data;
       
       const reportWindow = window.open('', '', 'width=800,height=600');

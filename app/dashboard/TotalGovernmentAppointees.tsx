@@ -16,7 +16,7 @@ export default function TotalGovernmentAppointees() {
   useEffect(() => {
     const fetchTotalAppointees = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/governmentAppointees/total');
+        const response = await axios.get('https://kmabackend.onrender.com/api/governmentAppointees/total');
         setTotalAppointees(response.data.total);
       } catch (error) {
         console.error('Error fetching government appointees:', error);
