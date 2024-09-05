@@ -37,7 +37,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
   useEffect(() => {
     const fetchConveners = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/conveners');
+        const response = await axios.get('https://kmabackend.onrender.com/api/conveners');
         const convenersWithAttendance = response.data.map((convener: Member) => ({
           ...convener,
           attended: false,
@@ -75,7 +75,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/convener-meeting/attendance', {
+      await axios.post('https://kmabackend.onrender.com/api/convener-meeting/attendance', {
         members: [{ memberId: convener._id, attended: convener.attended }],
       });
 
@@ -106,7 +106,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
 
   const generatePrintableReport = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/execoreport');
+      const response = await axios.get('https://kmabackend.onrender.com/api/execoreport');
       const reportData = response.data;
 
       const reportWindow = window.open('', '', 'width=800,height=600');
