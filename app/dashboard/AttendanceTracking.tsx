@@ -65,7 +65,7 @@ const AttendanceTracking: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get<Subcommittee[]>(
-        "http://localhost:5000/api/subcommittees"
+        "https://kmabackend.onrender.com/api/subcommittees"
       );
       setSubcommittees(response.data);
     } catch (error) {
@@ -107,7 +107,7 @@ const AttendanceTracking: React.FC = () => {
       const { attendance = false } = selectedAttendance[key] || {};
 
       if (attendance) {
-        await axios.post("http://localhost:5000/api/mark", {
+        await axios.post("https://kmabackend.onrender.com/api/mark", {
           subcommitteeId,
           memberId,
         });
