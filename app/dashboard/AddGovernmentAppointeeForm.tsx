@@ -60,7 +60,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      const response = await axios.post('https://kmabackend.onrender.com/api/appointee', formData);
+      const response = await axios.post('http://localhost:5000/api/appointee', formData);
       if (response.status === 201) {
         setNotification({ show: true, message: 'Government Appointee added successfully', type: 'success' });
         setFormData(initialFormData);

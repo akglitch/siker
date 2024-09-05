@@ -37,7 +37,7 @@ const Subcommittees: React.FC = () => {
   const fetchSubcommittees = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees');
+      const response = await axios.get('http://localhost:5000/api/subcommittees');
       const sortedSubcommittees = response.data.sort((a: Subcommittee, b: Subcommittee) => {
         const order = ['Transport', 'Revenue', 'Travel'];
         return order.indexOf(a.name) - order.indexOf(b.name);
@@ -52,7 +52,7 @@ const Subcommittees: React.FC = () => {
 
   const handleDeleteMember = async (subcommitteeId: string, memberId: string) => {
     try {
-      await axios.delete(`https://kmabackend.onrender.com/api/subcommittees/${subcommitteeId}/members/${memberId}`);
+      await axios.delete(`http://localhost:5000/api/subcommittees/${subcommitteeId}/members/${memberId}`);
       // Refresh the list of subcommittees
       fetchSubcommittees();
     } catch (error) {

@@ -16,7 +16,7 @@ export default function TotalAssemblyMembers() {
   useEffect(() => {
     const fetchTotalMembers = async () => {
       try {
-        const response = await axios.get('https://kmabackend.onrender.com/api/assembly/members/total');
+        const response = await axios.get('http://localhost:5000/api/assembly/members/total');
         setTotalMembers(response.data.total);
       } catch (error) {
         console.error('Error fetching total assembly members:', error);
