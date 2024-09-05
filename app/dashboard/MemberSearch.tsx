@@ -58,7 +58,7 @@ const Members: React.FC = () => {
 
   const fetchSubcommitteeMembers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/subcommittees/members', {
+      const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees/members', {
         params: { subcommitteeName: selectedSubcommittee },
       });
       setSubcommitteeMembers(response.data);
@@ -78,7 +78,7 @@ const Members: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/members/search', {
+      const response = await axios.get('https://kmabackend.onrender.com/api/members/search', {
         params: { contact: e.target.value },
       });
       const allMembers: Member[] = response.data;
@@ -114,7 +114,7 @@ const Members: React.FC = () => {
   
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/subcommittees/addmember', {
+      const response = await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
         subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
@@ -145,7 +145,7 @@ const Members: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
       setLoading(true);
       try {
-        await axios.delete(`http://localhost:5000/api/members/${member.memberType}/${member._id}`);
+        await axios.delete(`https://kmabackend.onrender.com/api/members/${member.memberType}/${member._id}`);
         setNotification({ show: true, message: `${member.name} deleted successfully`, type: 'success' });
 
         await handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
@@ -163,7 +163,7 @@ const Members: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await axios.put(`http://localhost:5000/api/members/${editMember.memberType}/${editMember._id}`, editMember);
+      const response = await axios.put(`https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`, editMember);
       const updatedMember = response.data;
 
       setNotification({ show: true, message: `${editMember.name} updated successfully`, type: 'success' });
