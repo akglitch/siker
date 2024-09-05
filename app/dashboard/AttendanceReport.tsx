@@ -67,7 +67,7 @@ const AttendanceReport: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get<Subcommittee[]>(
-        "http://localhost:5000/api/report"
+        "https://kmabackend.onrender.com/api/report"
       );
       console.log("Report data from API:", response.data); // Debugging log
 
