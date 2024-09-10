@@ -4,9 +4,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import { Book, Logout, Note, Print, Scanner, ScannerSharp } from '@mui/icons-material';
+import { Add, Book, Logout, Note, People, Group, MeetingRoom, Print,  } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { Paper } from '@mui/material';
 
 export const MainListItems  = (props: any) => {
   const router = useRouter();
@@ -30,49 +31,49 @@ export const MainListItems  = (props: any) => {
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(1)}>
        <ListItemIcon>
-         <Book />
+         <Add />
        </ListItemIcon>
        <ListItemText primary="addAssembly member" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(2)}>
        <ListItemIcon>
-         <Book />
+       <Add />
        </ListItemIcon>
        <ListItemText primary="add Appointee" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(3)}>
        <ListItemIcon>
-         <Note />
+         <People />
        </ListItemIcon>
        <ListItemText primary="Members" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(4)}>
        <ListItemIcon>
-         <Note />
+         <People />
        </ListItemIcon>
        <ListItemText primary="Attendance" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(5)}>
       <ListItemIcon>
-        <Note/>
+        <Print/>
       </ListItemIcon>
       <ListItemText primary="Report" />
     </ListItemButton>
     <ListItemButton onClick={() => setCurrView(6)}>
        <ListItemIcon>
-         <Note />
+         <Group />
        </ListItemIcon>
        <ListItemText primary="Subcommittees" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(7)}>
        <ListItemIcon>
-         <Note />
+         <MeetingRoom />
        </ListItemIcon>
        <ListItemText primary="GeneralMeeting" />
      </ListItemButton>
      <ListItemButton onClick={() => setCurrView(8)}>
        <ListItemIcon>
-         <Note />
+         <MeetingRoom />
        </ListItemIcon>
        <ListItemText primary="Execo" />
      </ListItemButton>
