@@ -14,7 +14,7 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { username, password });
+      const response = await axios.post('https://kmabackend.onrender.com/api/login', { username, password });
       const { token } = response.data;
       // Save the token to local storage
       localStorage.setItem('token', token);
