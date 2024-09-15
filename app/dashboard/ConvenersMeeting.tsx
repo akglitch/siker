@@ -106,7 +106,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
 
   const generatePrintableReport = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/execoreport');
+      const response = await axios.get('https://kmabackend.onrender.com/api/execoreport');
       const reportData = response.data;
   
       const reportWindow = window.open('', '', 'width=800,height=600');
