@@ -14,7 +14,7 @@ const SignUp: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/register', { username, password });
+      const response = await axios.post('https://kmabackend.onrender.com/api/register', { username, password });
       console.log(response.data);
       // Redirect to login page after successful registration
       router.push('/login');
