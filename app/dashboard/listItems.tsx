@@ -14,7 +14,7 @@ export const MainListItems  = (props: any) => {
   const handleLogout = async () => {
     try {
       await axios.post('https://kmabackend.onrender.com/api/logout', {}, { withCredentials: true });
-      router.push('/login');
+      router.push('/login'); // Redirect to login after logging out
     } catch (error: any) {
       console.error('Error logging out:', error.response?.data?.message || error.message);
     }
