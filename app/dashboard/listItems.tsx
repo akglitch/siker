@@ -79,13 +79,6 @@ export const MainListItems  = (props: any) => {
        <ListItemText primary="Execo" />
      </ListItemButton>
      
-     <ListItemButton onClick={() => setCurrView(9)}>
-       <ListItemIcon>
-         <MeetingRoomSharp />
-       </ListItemIcon>
-       <ListItemText primary="Meetings Manager" />
-     </ListItemButton>
-     
     
     <ListSubheader  >
     <ListItemButton onClick={handleLogout} >

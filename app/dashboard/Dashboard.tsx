@@ -39,7 +39,7 @@ import AttendanceTracking from "./AttendanceTracking";
 import Members from "./MemberSearch";
 import GeneralMeetingAttendance from "./GeneralMeeting";
 import ConvenerMeetingAttendance from "./ConvenersMeeting";
-import MeetingManager from "./Meetings";
+
 const drawerWidth: number = 240;
 
 interface AppBarProps extends MuiAppBarProps {
@@ -143,8 +143,7 @@ export default function Dashboard() {
     <AttendanceReport key={Math.random()} />,
     <Subcommittees key={Math.random()} />,
     <GeneralMeetingAttendance  key={Math.random()} />,
-   <ConvenerMeetingAttendance key={Math.random()} />,
-   <MeetingManager key={Math.random()} />,
+   <ConvenerMeetingAttendance key={Math.random()} />
   ];
 
   const toggleDrawer = () => {
