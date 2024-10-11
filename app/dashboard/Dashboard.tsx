@@ -39,6 +39,7 @@ import AttendanceTracking from "./AttendanceTracking";
 import Members from "./MemberSearch";
 import GeneralMeetingAttendance from "./GeneralMeeting";
 import ConvenerMeetingAttendance from "./ConvenersMeeting";
+import MeetingManager from "./Meetings";
 const drawerWidth: number = 240;
 
 interface AppBarProps extends MuiAppBarProps {
@@ -108,20 +109,20 @@ function MainView() {
       <Grid container spacing={3}>
         
         <Grid item xs={12} md={4} lg={4}>
-          <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 240 }}>
+      
             <TotalAssemblyMembers />
-          </Paper>
+          
         </Grid>
         <Grid item xs={12} md={4} lg={4}>
-          <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 240 }}>
+         
           <TotalAttendance />
-          </Paper>
+        
         </Grid>
         {/* Recent Deposits */}
         <Grid item xs={12} md={4} lg={4}>
-          <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 240 }}>
+        
             <TotalGovernmentAppointees />
-          </Paper>
+        
         </Grid>
         </Grid>
     
@@ -143,6 +144,7 @@ export default function Dashboard() {
     <Subcommittees key={Math.random()} />,
     <GeneralMeetingAttendance  key={Math.random()} />,
    <ConvenerMeetingAttendance key={Math.random()} />,
+   <MeetingManager key={Math.random()} />,
   ];
 
   const toggleDrawer = () => {

@@ -4,7 +4,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import { Add, Book, Logout, Note, People, Group, MeetingRoom, Print,  } from '@mui/icons-material';
+import { Add, Book, Logout, Note, People, Group, MeetingRoom, Print, MeetingRoomSharp,  } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Paper } from '@mui/material';
@@ -13,7 +13,7 @@ export const MainListItems  = (props: any) => {
   const router = useRouter();
   const handleLogout = async () => {
     try {
-      await axios.post('https://kmabackend.onrender.com/api/logout', {}, { withCredentials: true });
+      await axios.post('http://localhost:5000/api/logout', {}, { withCredentials: true });
       router.push('/login');
     } catch (error: any) {
       console.error('Error logging out:', error.response?.data?.message || error.message);
@@ -71,6 +71,7 @@ export const MainListItems  = (props: any) => {
        </ListItemIcon>
        <ListItemText primary="GeneralMeeting" />
      </ListItemButton>
+     
      <ListItemButton onClick={() => setCurrView(8)}>
        <ListItemIcon>
          <MeetingRoom />
@@ -78,6 +79,12 @@ export const MainListItems  = (props: any) => {
        <ListItemText primary="Execo" />
      </ListItemButton>
      
+     <ListItemButton onClick={() => setCurrView(9)}>
+       <ListItemIcon>
+         <MeetingRoomSharp />
+       </ListItemIcon>
+       <ListItemText primary="Meetings Manager" />
+     </ListItemButton>
      
     
     <ListSubheader  >
