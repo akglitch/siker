@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { CircularProgress, Alert } from '@mui/material'; // Import CircularProgress and Alert from MUI
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Loading state
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true); // Start loader
 
     try {
       const response = await axios.post('https://kmabackend.onrender.com/api/register', { username, password });
@@ -21,6 +24,8 @@ const SignUp: React.FC = () => {
     } catch (error: any) {
       console.error('Error registering user:', error.response?.data?.message || error.message);
       setError(error.response?.data?.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false); // Stop loader after the request completes
     }
   };
 
@@ -37,12 +42,19 @@ const SignUp: React.FC = () => {
             <img
               src="/kmalogo.png"
               width="150"
-              alt="Instagram Logo"
+              alt="Kumasi Metropolitan"
             />
             <h1 className="mb-2 text-2xl">Kumasi Metropolitan</h1>
             <span className="text-gray-300">Create a new account</span>
           </div>
-          {error && <p className="text-red-500 text-center">{error}</p>}
+          
+          {/* Error Alert using MUI */}
+          {error && (
+            <div className="mb-4">
+              <Alert severity="error">{error}</Alert>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             <div className="mb-4 text-lg">
               <input
@@ -71,12 +83,19 @@ const SignUp: React.FC = () => {
             <div className="mt-8 flex justify-center text-lg text-black">
               <button
                 type="submit"
-                className="rounded-3xl bg-yellow-400 bg-opacity-50 px-10 py-2 text-white shadow-xl backdrop-blur-md transition-colors duration-300 hover:bg-yellow-600"
+                className={`flex items-center justify-center rounded-3xl bg-yellow-400 bg-opacity-50 px-10 py-2 text-white shadow-xl backdrop-blur-md transition-colors duration-300 hover:bg-yellow-600 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isLoading}
               >
-                Sign Up
+                {/* Loader Spinner using MUI's CircularProgress */}
+                {isLoading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  'Sign Up'
+                )}
               </button>
             </div>
           </form>
+
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-300">
               Already have an account?{' '}
