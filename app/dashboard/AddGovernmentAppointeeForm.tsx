@@ -56,7 +56,7 @@ const AddGovernmentAppointeeForm = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'https://kmabackend.onrender.com/api/governmentappointee',
+        'https://kmabackend.onrender.com/api/appointee',
         data
       );
       toast({
