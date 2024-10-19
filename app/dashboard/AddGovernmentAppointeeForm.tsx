@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -89,7 +89,8 @@ const AddGovernmentAppointeeForm: React.FC = () => {
 
   return (
     <div className="container mx-auto">
-      <Box p={2} mb={4} boxShadow={3} borderRadius={2} bgcolor="background.paper">
+      {/* Form Container */}
+      <Box p={4} mt={6} boxShadow={3} borderRadius={2} bgcolor="background.paper" maxWidth="md" mx="auto">
         <Typography variant="h6" gutterBottom>
           Add Government Appointee
         </Typography>
