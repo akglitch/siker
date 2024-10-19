@@ -1,11 +1,13 @@
 "use client"
 import React from "react";
+import { Hero } from "./components/LandingPage";
+
 
 export default function Home() {
   return (
     
-    <main className="min-h-screen bg-white text-black">
-   
+    <main className="mx-auto container">
+   <Hero />
 
     </main>
 
