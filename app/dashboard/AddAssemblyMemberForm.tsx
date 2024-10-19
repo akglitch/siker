@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '../ui/button2';
 import {
   Form,
@@ -62,7 +60,7 @@ const AddAssemblyMemberForm = () => {
         data
       );
       toast({
-        variant: 'success',
+        variant: 'default', // Changed from 'success' to 'default'
         title: 'Assembly Member Added',
         description: 'The assembly member was successfully added.',
       });
@@ -86,7 +84,7 @@ const AddAssemblyMemberForm = () => {
       <Separator />
 
       {/* Form Container */}
-      <div className=" shadow-md rounded-lg p-6 mt-6 max-w-xl mx-auto">
+      <div className="shadow-md rounded-lg p-6 mt-6 max-w-xl mx-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Name Field */}
