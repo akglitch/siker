@@ -1,210 +1,181 @@
-import { Button } from '../ui/button2';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '../ui/form';
-import { Input } from '../ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import { Separator } from '../ui/separator';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import axios from 'axios';
-import { useToast } from '../ui/use-toast';
+"use client";
 
-// Validation schema using Zod
-const formSchema = z.object({
-  name: z.string().min(3, { message: 'Name must be at least 3 characters' }),
-  electoralArea: z
-    .string()
-    .min(3, { message: 'Electoral Area must be at least 3 characters' }),
-  contact: z.string().min(10, { message: 'Contact must be at least 10 digits' }),
-  gender: z.string().min(1, { message: 'Please select a gender' }),
-  isConvener: z.boolean().optional(),
+import React, { useState } from 'react';
+import axios from 'axios';
+import { IAssemblyMember } from '../types';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+} from '@mui/material';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { SelectChangeEvent } from '@mui/material/Select';
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-// Type inferred from schema
-type AssemblyMemberFormValues = z.infer<typeof formSchema>;
+const AddAssemblyMemberForm: React.FC = () => {
+  const initialFormData: Omit<IAssemblyMember, '_id'> = {
+    name: '',
+    electoralArea: '',
+    contact: '',
+    gender: 'Male',
+    isConvener: false,  // Initialize the isConvener field
+  };
 
-const AddAssemblyMemberForm = () => {
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-
-  const form = useForm<AssemblyMemberFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      electoralArea: '',
-      contact: '',
-      gender: 'Male',
-      isConvener: false,
-    },
+  const [formData, setFormData] = useState(initialFormData);
+  const [saving, setSaving] = useState(false);
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error',
   });
 
-  const onSubmit = async (data: AssemblyMemberFormValues) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name as string]: value }));
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, isConvener: checked }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      setLoading(true);
-      const response = await axios.post(
-        'https://kmabackend.onrender.com/api/assemblymember',
-        data
-      );
-      toast({
-        variant: 'default', // Changed from 'success' to 'default'
-        title: 'Assembly Member Added',
-        description: 'The assembly member was successfully added.',
-      });
-      form.reset();
+      setSaving(true);
+      const response = await axios.post('https://kmabackend.onrender.com/api/assemblymember', formData);
+      if (response.status === 201 || response.status === 200) {
+        setNotification({ show: true, message: 'Assembly Member added successfully', type: 'success' });
+        setFormData(initialFormData);
+      } else {
+        setNotification({ show: true, message: `Unexpected response: ${response.statusText}`, type: 'error' });
+      }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error Adding Member',
-        description: 'There was an error submitting the form.',
-      });
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Error adding Assembly Member';
+        setNotification({ show: true, message: errorMessage, type: 'error' });
+      } else {
+        setNotification({ show: true, message: 'An unexpected error occurred', type: 'error' });
+      }
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
+  };
+
+  const handleClear = () => {
+    setFormData(initialFormData);
+  };
+
+  const handleSnackbarClose = () => {
+    setNotification({ ...notification, show: false });
   };
 
   return (
     <div className="container mx-auto">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Add Assembly Member</h2>
-      </div>
-      <Separator />
-
-      {/* Form Container */}
-      <div className="shadow-md rounded-lg p-6 mt-6 max-w-xl mx-auto">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Name Field */}
-            <FormField
-              control={form.control}
+      <Box p={2} mb={4} boxShadow={3} borderRadius={2} bgcolor="background.paper">
+        <Typography variant="h6" gutterBottom>
+          Add Assembly Member
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <Box mb={2}>
+            <TextField
+              label="Name"
               name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Assembly member's name"
-                      disabled={loading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              value={formData.name}
+              onChange={handleChange}
+              fullWidth
+              required
             />
-
-            {/* Electoral Area Field */}
-            <FormField
-              control={form.control}
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Electoral Area"
               name="electoralArea"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Electoral Area</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Electoral Area"
-                      disabled={loading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              value={formData.electoralArea}
+              onChange={handleChange}
+              fullWidth
+              required
             />
-
-            {/* Contact Field */}
-            <FormField
-              control={form.control}
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Contact"
               name="contact"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Contact number"
-                      disabled={loading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              value={formData.contact}
+              onChange={handleChange}
+              fullWidth
+              required
             />
-
-            {/* Gender Field */}
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gender</FormLabel>
-                  <Select
-                    disabled={loading}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </Box>
+          <Box mb={2}>
+            <FormControl fullWidth required>
+              <InputLabel>Gender</InputLabel>
+              <Select
+                name="gender"
+                value={formData.gender}
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box mb={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="isConvener"
+                  checked={formData.isConvener}
+                  onChange={handleCheckboxChange}
+                  color="primary"
+                />
+              }
+              label="Is Convener"
             />
-
-            {/* Is Convener Field */}
-            <FormField
-              control={form.control}
-              name="isConvener"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center space-x-3">
-                    <FormLabel className="mb-0">Is Convener</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="checkbox"
-                        disabled={loading}
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Submit Button */}
+          </Box>
+          <Box display="flex" gap={2}>
             <Button
-              disabled={loading}
-              className="ml-auto border border-gray-300 text-gray-700 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors duration-300"
               type="submit"
+              variant="contained"
+              color="primary"
+              disabled={saving}
+              startIcon={saving && <CircularProgress size={20} />}
             >
-              {loading ? 'Saving...' : 'Add Assembly Member'}
+              {saving ? 'Saving...' : 'Add Assembly Member'}
             </Button>
-          </form>
-        </Form>
-      </div>
+            <Button variant="outlined" onClick={handleClear} color="secondary">
+              Clear
+            </Button>
+          </Box>
+        </form>
+        <Snackbar
+          open={notification.show}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        >
+          <Alert onClose={handleSnackbarClose} severity={notification.type}>
+            {notification.message}
+          </Alert>
+        </Snackbar>
+      </Box>
     </div>
   );
 };
