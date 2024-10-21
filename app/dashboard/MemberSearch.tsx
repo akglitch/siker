@@ -80,7 +80,7 @@ const Members: React.FC = () => {
     }
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/members/search', {
-        params: { contact: e.target.value },
+        params: { query: e.target.value }, // Changed from contact to query
       });
       const allMembers: Member[] = response.data;
       const membersWithStatus = allMembers.map((member) => ({
