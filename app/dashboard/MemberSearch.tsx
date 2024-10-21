@@ -31,6 +31,7 @@ interface Member {
   name: string;
   contact: string;
   gender: string;
+  electoralArea:string;
   memberType: string;
   isConvener?: boolean;
   isInSelectedSubcommittee?: boolean;
@@ -220,6 +221,7 @@ const Members: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Contact</TableCell>
               <TableCell>Gender</TableCell>
+              <TableCell>Electoral_Area</TableCell>
               <TableCell>Member Type</TableCell>
               <TableCell>Subcommittee</TableCell>
               <TableCell>Actions</TableCell>
@@ -238,6 +240,7 @@ const Members: React.FC = () => {
                   <TableCell>{member.name}</TableCell>
                   <TableCell>{member.contact}</TableCell>
                   <TableCell>{member.gender}</TableCell>
+                  <TableCell>{member.electoralArea}</TableCell>
                   <TableCell>{member.memberType}</TableCell>
                   <TableCell>
                     {!member.isInSelectedSubcommittee && (
@@ -299,6 +302,14 @@ const Members: React.FC = () => {
                 label="Gender"
                 name="gender"
                 value={editMember.gender}
+                onChange={handleEditInputChange}
+                fullWidth
+                margin="normal"
+              />
+                <TextField
+                label="Electoral_Area"
+                name="electoral_Area"
+                value={editMember.electoralArea}
                 onChange={handleEditInputChange}
                 fullWidth
                 margin="normal"
