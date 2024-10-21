@@ -1,4 +1,3 @@
-"use client";
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import {
@@ -13,7 +12,6 @@ import {
   Paper,
   Toolbar,
   Typography,
-  Badge,
   Link,
 } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
@@ -22,7 +20,6 @@ import {
   Brightness7,
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
-  Notifications as NotificationsIcon,
 } from "@mui/icons-material";
 import { ColorModeContext } from "../utils/theme";
 import { MainListItems, secondaryListItems } from "./listItems";
@@ -107,31 +104,22 @@ function MainView() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3}>
-        
         <Grid item xs={12} md={4} lg={4}>
-      
-            <TotalAssemblyMembers />
-          
+          <TotalAssemblyMembers />
         </Grid>
         <Grid item xs={12} md={4} lg={4}>
-         
           <TotalAttendance />
-        
         </Grid>
-        {/* Recent Deposits */}
         <Grid item xs={12} md={4} lg={4}>
-        
-            <TotalGovernmentAppointees />
-        
+          <TotalGovernmentAppointees />
         </Grid>
-        </Grid>
-    
+      </Grid>
       <Copyright sx={{ pt: 4 }} />
     </Container>
   );
 }
 
-export default function Dashboard() {
+export default function Dashboard({ username }: { username: string }) {
   const [open, setOpen] = React.useState(true);
   const [currView, setCurrView] = React.useState(0);
   const views = [
@@ -142,8 +130,8 @@ export default function Dashboard() {
     <AttendanceTracking key={Math.random()} />,
     <AttendanceReport key={Math.random()} />,
     <Subcommittees key={Math.random()} />,
-    <GeneralMeetingAttendance  key={Math.random()} />,
-   <ConvenerMeetingAttendance key={Math.random()} />
+    <GeneralMeetingAttendance key={Math.random()} />,
+    <ConvenerMeetingAttendance key={Math.random()} />,
   ];
 
   const toggleDrawer = () => {
@@ -165,19 +153,18 @@ export default function Dashboard() {
             onClick={toggleDrawer}
             sx={{ marginRight: "36px", ...(open && { display: "none" }) }}
           >
-            <MenuIcon
-              sx={{ color: theme.palette.mode === "light" ? "black" : "white" }}
-            />
+            <MenuIcon sx={{ color: theme.palette.mode === "light" ? "black" : "white" }} />
           </IconButton>
           <Typography
-  component="h1"
-  variant="h6"
-  color="textPrimary"
-  noWrap
-  sx={{ flexGrow: 1 }}
->
-  Member Management System
-</Typography>
+            component="h1"
+            variant="h6"
+            color="textPrimary"
+            noWrap
+            sx={{ flexGrow: 1 }}
+          >
+            Member Management System
+          </Typography>
+          {/* Dark/Light Mode Toggle */}
           <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
             {theme.palette.mode === "dark" ? (
               <Brightness7 sx={{ color: "white" }} />
@@ -185,19 +172,19 @@ export default function Dashboard() {
               <Brightness4 sx={{ color: "black" }} />
             )}
           </IconButton>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon sx={{ color: theme.palette.mode === "light" ? "black" : "white" }} />
-            </Badge>
-          </IconButton>
+          {/* Display the logged-in username */}
+          <Typography
+            variant="body1"
+            sx={{ color: theme.palette.mode === "light" ? "black" : "white", ml: 2 }}
+          >
+            {username}
+          </Typography>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <Toolbar sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", px: [1] }}>
           <IconButton onClick={toggleDrawer}>
-            <ChevronLeftIcon
-              sx={{ color: theme.palette.mode === "light" ? "black" : "white" }}
-            />
+            <ChevronLeftIcon sx={{ color: theme.palette.mode === "light" ? "black" : "white" }} />
           </IconButton>
         </Toolbar>
         <Divider />
