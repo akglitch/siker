@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from '../ui/button2';
 import {
   Form,
@@ -59,8 +61,10 @@ const AddGovernmentAppointeeForm = () => {
         'https://kmabackend.onrender.com/api/appointee',
         data
       );
+
+      // Show success notification
       toast({
-        variant: 'default', // Changed from 'success' to 'default'
+        variant: 'default',
         title: 'Government Appointee Added',
         description: 'The government appointee was successfully added.',
       });

@@ -1,15 +1,14 @@
 "use client";
 import { Button } from "../ui/button";
 import { buttonVariants } from "../ui/button";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 
 export const Hero = () => {
   return (
-    <section className="mx-auto grid lg:grid-cols-2 place-items-center py-20 md:py-32 gap-10">
+    <section className="min-h-screen mx-auto grid lg:grid-cols-2 place-items-center py-20 gap-10">
       {/* Main Text Section */}
       <div className="text-center lg:text-start space-y-6">
-        <main className="text-5xl md:text-6xl font-bold">
+        <main className="text-5xl md:text-6xl font-bold leading-tight">
           <h1 className="inline">
             <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
               Effortless
@@ -30,29 +29,27 @@ export const Hero = () => {
         </p>
 
         {/* Action Buttons */}
-        <div className="space-y-4 md:space-y-0 md:space-x-4">
-        <a
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <a
             rel="noreferrer noopener"
             href="/signUp"
             target="_blank"
-            className={`w-full md:w-1/3 ${buttonVariants({
+            className={`w-full sm:w-auto ${buttonVariants({
               variant: "outline",
-            })}`}
+            })} px-4 py-2`}
           >
             Get Started
-           
           </a>
 
           <a
             rel="noreferrer noopener"
             href="/login"
             target="_blank"
-            className={`w-full md:w-1/3 ${buttonVariants({
+            className={`w-full sm:w-auto ${buttonVariants({
               variant: "outline",
-            })}`}
+            })} px-4 py-2`}
           >
             Login
-           
           </a>
         </div>
       </div>
@@ -62,9 +59,10 @@ export const Hero = () => {
         <Image
           src="/undraw_programming_re_kg9v.svg"
           alt="Teamwork illustration"
-          width={800}
-          height={800}
+          width={600}
+          height={600}
           priority
+          className="w-full h-auto"
         />
       </div>
 
