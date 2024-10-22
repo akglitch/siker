@@ -74,33 +74,24 @@ const Members: React.FC = () => {
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
-  
     if (e.target.value.trim() === '') {
-      setResults([]); // Clear the results if the query is empty
+      setResults([]);
       return;
     }
-  
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/members/search', {
-        params: { query: e.target.value }, // Send the query to the backend
+        params: { contact: e.target.value },
       });
-  
       const allMembers: Member[] = response.data;
       const membersWithStatus = allMembers.map((member) => ({
         ...member,
         isInSelectedSubcommittee: subcommitteeMembers.some((subMember) => subMember._id === member._id),
       }));
-  
-      setResults(membersWithStatus); // Set the search results
+      setResults(membersWithStatus);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Error searching members:', error.response?.data); // Log the specific error response
-      } else {
-        console.error('Error searching members:', error); // Log any other error
-      }
+      console.error('Error searching members:', error);
     }
   };
-  
 
   const handleAddMember = async (member: Member, subcommittee: string) => {
     if (!subcommittee) {
