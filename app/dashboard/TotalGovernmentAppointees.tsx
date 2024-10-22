@@ -63,7 +63,7 @@ export default function TotalGovernmentAppointees() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>${totalAppointees}</div>
+                  <div className='text-2xl font-bold'>{totalAppointees}</div>
                   <p className='text-xs text-muted-foreground'>
                     
                   </p>

@@ -62,7 +62,7 @@ export default function TotalAssemblyMembers() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>${totalMembers}</div>
+                  <div className='text-2xl font-bold'>{totalMembers}</div>
                   <p className='text-xs text-muted-foreground'>
                     
                   </p>
