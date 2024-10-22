@@ -57,7 +57,7 @@ export const MainListItems = (props: any) => {
         <ListItemIcon>
           <People />
         </ListItemIcon>
-        <ListItemText primary="Attendance" />
+        <ListItemText primary="Committee_attendance" />
       </ListItemButton>
       <ListItemButton onClick={() => setCurrView(5)}>
         <ListItemIcon>
