@@ -195,9 +195,12 @@ export default function Dashboard() {
       <Drawer variant="permanent" open={open}>
         <Toolbar sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", px: [1] }}>
           <IconButton onClick={toggleDrawer}>
-            <ChevronLeftIcon
-              sx={{ color: theme.palette.mode === "light" ? "black" : "white" }}
-            />
+          <Typography
+  variant="body1"
+  sx={{ color: theme.palette.mode === "light" ? "black" : "white", ml: 2 }}
+>
+John Doe {/* Ensure this state holds the correct username */}
+</Typography>
           </IconButton>
         </Toolbar>
         <Divider />
