@@ -15,13 +15,12 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true); // Start loader
-  
+
     try {
       const response = await axios.post('https://kmabackend.onrender.com/api/login', { username, password });
-      const { token, username: loggedInUser } = response.data; // Destructure username from response
-      // Save the token and username to local storage
+      const { token } = response.data;
+      // Save the token to local storage
       localStorage.setItem('token', token);
-      localStorage.setItem('username', loggedInUser); // Save username
       // Redirect to the dashboard after successful login
       router.push('/dashboard');
     } catch (error: any) {
