@@ -96,6 +96,7 @@ const AddAssemblyMemberForm: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <Box mb={2}>
             <TextField
+            type="text"
               label="Name"
               name="name"
               value={formData.name}
@@ -106,6 +107,7 @@ const AddAssemblyMemberForm: React.FC = () => {
           </Box>
           <Box mb={2}>
             <TextField
+            type="text"
               label="Electoral Area"
               name="electoralArea"
               value={formData.electoralArea}
