@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import  { AxiosError } from 'axios';
-
 import {
   Snackbar,
   CircularProgress,
@@ -31,14 +29,16 @@ interface Member {
   name: string;
   contact: string;
   gender: string;
-  electoralArea:string;
+  electoralArea: string;
   memberType: string;
   isConvener?: boolean;
   isInSelectedSubcommittee?: boolean;
 }
+
 interface ErrorResponse {
   message?: string;
 }
+
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -78,9 +78,10 @@ const Members: React.FC = () => {
       setResults([]);
       return;
     }
+
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/members/search', {
-        params: { contact: e.target.value },
+        params: { query: e.target.value },
       });
       const allMembers: Member[] = response.data;
       const membersWithStatus = allMembers.map((member) => ({
@@ -93,26 +94,28 @@ const Members: React.FC = () => {
     }
   };
 
+  const openEditDialog = (member: Member) => {
+    setEditMember(member);
+    setEditDialogOpen(true);
+  };
+
   const handleAddMember = async (member: Member, subcommittee: string) => {
     if (!subcommittee) {
       setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
       return;
     }
-  
-    // Check if the member is already in two subcommittees
+
     if (subcommitteeMembers.filter((m) => m._id === member._id).length >= 2) {
       setNotification({ show: true, message: 'Member can only be part of 2 subcommittees', type: 'error' });
       return;
     }
-  
-    // Determine if the member should be a convener
-    let updatedIsConvener = false; // Default to false
-  
+
+    let updatedIsConvener = false;
+
     if (member.isConvener) {
-      // If the member is a convener in another subcommittee, they should not be a convener here
       updatedIsConvener = !subcommitteeMembers.some((m) => m._id === member._id && m.isConvener);
     }
-  
+
     setLoading(true);
     try {
       const response = await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
@@ -121,9 +124,9 @@ const Members: React.FC = () => {
         memberType: member.memberType,
         isConvener: updatedIsConvener,
       });
-  
+
       setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
-  
+
       await fetchSubcommitteeMembers();
       handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
     } catch (error) {
@@ -140,7 +143,6 @@ const Members: React.FC = () => {
       setLoading(false);
     }
   };
-
 
   const handleDeleteMember = async (member: Member) => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
@@ -159,47 +161,6 @@ const Members: React.FC = () => {
     }
   };
 
-  const handleEditMember = async () => {
-    if (!editMember) return;
-
-    setLoading(true);
-    try {
-      const response = await axios.put(`https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`, editMember);
-      const updatedMember = response.data;
-
-      setNotification({ show: true, message: `${editMember.name} updated successfully`, type: 'success' });
-
-      setResults((prevResults) =>
-        prevResults.map((member) => (member._id === updatedMember._id ? updatedMember : member))
-      );
-      setSubcommitteeMembers((prevSubMembers) =>
-        prevSubMembers.map((subMember) => (subMember._id === updatedMember._id ? updatedMember : subMember))
-      );
-
-      setEditDialogOpen(false);
-    } catch (error) {
-      console.error('Error updating member:', error);
-      setNotification({ show: true, message: 'Error updating member', type: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const openEditDialog = (member: Member) => {
-    setEditMember(member);
-    setEditDialogOpen(true);
-  };
-
-  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (editMember) {
-      setEditMember({ ...editMember, [e.target.name]: e.target.value });
-    }
-  };
-
-  const handleSubcommitteeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubcommittee(e.target.value);
-  };
-
   const handleSnackbarClose = () => {
     setNotification({ ...notification, show: false });
   };
@@ -207,7 +168,7 @@ const Members: React.FC = () => {
   return (
     <div className="container mx-auto">
       <TextField
-        label="Search members by contact"
+        label="Search members by name or contact"
         value={query}
         onChange={handleSearch}
         variant="outlined"
@@ -221,119 +182,53 @@ const Members: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Contact</TableCell>
               <TableCell>Gender</TableCell>
-              <TableCell>Electoral_Area</TableCell>
+              <TableCell>Electoral Area</TableCell>
               <TableCell>Member Type</TableCell>
               <TableCell>Subcommittee</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No results found.
+            {results.slice(0, 7).map((member) => (
+              <TableRow key={member._id}>
+                <TableCell>{member.name}</TableCell>
+                <TableCell>{member.contact}</TableCell>
+                <TableCell>{member.gender}</TableCell>
+                <TableCell>{member.electoralArea}</TableCell>
+                <TableCell>{member.memberType}</TableCell>
+                <TableCell>
+                  {!member.isInSelectedSubcommittee && (
+                    <Select
+                      value=""
+                      onChange={(e) => handleAddMember(member, e.target.value)}
+                      displayEmpty
+                      fullWidth
+                    >
+                      <MenuItem value="">Committees</MenuItem>
+                      <MenuItem value="Travel">Travel</MenuItem>
+                      <MenuItem value="Revenue">Revenue</MenuItem>
+                      <MenuItem value="Transport">Transport</MenuItem>
+                    </Select>
+                  )}
+                  {member.isConvener && (
+                    <Typography variant="body2" color="textSecondary">
+                      (Convener)
+                    </Typography>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Button variant="contained" color="primary" onClick={() => openEditDialog(member)}>
+                    Edit
+                  </Button>
+                  <Button variant="contained" color="secondary" onClick={() => handleDeleteMember(member)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
-            ) : (
-              results.map((member) => (
-                <TableRow key={member._id}>
-                  <TableCell>{member.name}</TableCell>
-                  <TableCell>{member.contact}</TableCell>
-                  <TableCell>{member.gender}</TableCell>
-                  <TableCell>{member.electoralArea}</TableCell>
-                  <TableCell>{member.memberType}</TableCell>
-                  <TableCell>
-                    {!member.isInSelectedSubcommittee && (
-                      <Select
-                        value=""
-                        onChange={(e) => handleAddMember(member, e.target.value)}
-                        displayEmpty
-                        fullWidth
-                      >
-                        <MenuItem value="">Committees</MenuItem>
-                        <MenuItem value="Travel">Travel</MenuItem>
-                        <MenuItem value="Revenue">Revenue</MenuItem>
-                        <MenuItem value="Transport">Transport</MenuItem>
-                      </Select>
-                    )}
-                    {member.isConvener && (
-                      <Typography variant="body2" color="textSecondary">
-                        (Convener)
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="contained" color="primary" onClick={() => openEditDialog(member)}>
-                      Edit
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => handleDeleteMember(member)}>
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
-
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Edit Member</DialogTitle>
-        <DialogContent>
-          {editMember && (
-            <div>
-              <TextField
-                label="Name"
-                name="name"
-                value={editMember.name}
-                onChange={handleEditInputChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Contact"
-                name="contact"
-                value={editMember.contact}
-                onChange={handleEditInputChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Gender"
-                name="gender"
-                value={editMember.gender}
-                onChange={handleEditInputChange}
-                fullWidth
-                margin="normal"
-              />
-                <TextField
-                label="Electoral_Area"
-                name="electoral_Area"
-                value={editMember.electoralArea}
-                onChange={handleEditInputChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Member Type"
-                name="memberType"
-                value={editMember.memberType}
-                onChange={handleEditInputChange}
-                fullWidth
-                margin="normal"
-              />
-            </div>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleEditMember} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <Snackbar open={notification.show} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={notification.type}>

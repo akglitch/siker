@@ -116,6 +116,7 @@ const AddGovernmentAppointeeForm: React.FC = () => {
           </Box>
           <Box mb={2}>
             <TextField
+             type="number"
               label="Contact"
               name="contact"
               value={formData.contact}
