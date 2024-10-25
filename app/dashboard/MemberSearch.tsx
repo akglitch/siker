@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import  { AxiosError } from 'axios';
+
 import {
   Snackbar,
   CircularProgress,
@@ -29,12 +31,14 @@ interface Member {
   name: string;
   contact: string;
   gender: string;
-  electoralArea: string;
+  electoralArea:string;
   memberType: string;
   isConvener?: boolean;
   isInSelectedSubcommittee?: boolean;
 }
-
+interface ErrorResponse {
+  message?: string;
+}
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -53,25 +57,7 @@ const Members: React.FC = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editMember, setEditMember] = useState<Member | null>(null);
 
-  // Function to fetch initial member data
-  const fetchInitialMembers = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get('https://kmabackend.onrender.com/api/members'); // Replace with your actual API endpoint
-      setResults(response.data);
-    } catch (error) {
-      console.error('Error fetching initial members:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchInitialMembers(); // Load initial data on component mount
-  }, []);
-
   const fetchSubcommitteeMembers = async () => {
-    setLoading(true);
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees/members', {
         params: { subcommitteeName: selectedSubcommittee },
@@ -79,8 +65,6 @@ const Members: React.FC = () => {
       setSubcommitteeMembers(response.data);
     } catch (error) {
       console.error('Error fetching subcommittee members:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -91,10 +75,9 @@ const Members: React.FC = () => {
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     if (e.target.value.trim() === '') {
-      fetchInitialMembers(); // Display initial data if the search is cleared
+      setResults([]);
       return;
     }
-    setLoading(true);
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/members/search', {
         params: { contact: e.target.value },
@@ -107,8 +90,6 @@ const Members: React.FC = () => {
       setResults(membersWithStatus);
     } catch (error) {
       console.error('Error searching members:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -117,35 +98,49 @@ const Members: React.FC = () => {
       setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
       return;
     }
+  
+    // Check if the member is already in two subcommittees
     if (subcommitteeMembers.filter((m) => m._id === member._id).length >= 2) {
       setNotification({ show: true, message: 'Member can only be part of 2 subcommittees', type: 'error' });
       return;
     }
-
-    let updatedIsConvener = false;
+  
+    // Determine if the member should be a convener
+    let updatedIsConvener = false; // Default to false
+  
     if (member.isConvener) {
+      // If the member is a convener in another subcommittee, they should not be a convener here
       updatedIsConvener = !subcommitteeMembers.some((m) => m._id === member._id && m.isConvener);
     }
-
+  
     setLoading(true);
     try {
-      await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
+      const response = await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
         subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
         isConvener: updatedIsConvener,
       });
+  
       setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
-
+  
       await fetchSubcommitteeMembers();
       handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
     } catch (error) {
-      console.error('Error adding member:', error);
-      setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+      if (axios.isAxiosError(error)) {
+        const errorResponse = error.response?.data as ErrorResponse;
+        const errorMessage = errorResponse.message || error.message || 'Unknown error';
+        console.error('Error adding member to subcommittee:', errorMessage);
+        setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+      } else {
+        console.error('Unexpected error:', error);
+        setNotification({ show: true, message: 'Unexpected error occurred', type: 'error' });
+      }
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleDeleteMember = async (member: Member) => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
@@ -169,10 +164,7 @@ const Members: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await axios.put(
-        `https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`,
-        editMember
-      );
+      const response = await axios.put(`https://kmabackend.onrender.com/api/members/${editMember.memberType}/${editMember._id}`, editMember);
       const updatedMember = response.data;
 
       setNotification({ show: true, message: `${editMember.name} updated successfully`, type: 'success' });
@@ -229,14 +221,20 @@ const Members: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Contact</TableCell>
               <TableCell>Gender</TableCell>
-              <TableCell>Electoral Area</TableCell>
+              <TableCell>Electoral_Area</TableCell>
               <TableCell>Member Type</TableCell>
               <TableCell>Subcommittee</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.length > 0 ? (
+            {results.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No results found.
+                </TableCell>
+              </TableRow>
+            ) : (
               results.map((member) => (
                 <TableRow key={member._id}>
                   <TableCell>{member.name}</TableCell>
@@ -252,29 +250,28 @@ const Members: React.FC = () => {
                         displayEmpty
                         fullWidth
                       >
-                        <MenuItem value="">Add to Subcommittee</MenuItem>
+                        <MenuItem value="">Committees</MenuItem>
                         <MenuItem value="Travel">Travel</MenuItem>
-                        <MenuItem value="Finance">Finance</MenuItem>
-                        {/* Add more subcommittee options here */}
+                        <MenuItem value="Revenue">Revenue</MenuItem>
+                        <MenuItem value="Transport">Transport</MenuItem>
                       </Select>
+                    )}
+                    {member.isConvener && (
+                      <Typography variant="body2" color="textSecondary">
+                        (Convener)
+                      </Typography>
                     )}
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => openEditDialog(member)} color="primary">
+                    <Button variant="contained" color="primary" onClick={() => openEditDialog(member)}>
                       Edit
                     </Button>
-                    <Button onClick={() => handleDeleteMember(member)} color="secondary">
+                    <Button variant="contained" color="secondary" onClick={() => handleDeleteMember(member)}>
                       Delete
                     </Button>
                   </TableCell>
                 </TableRow>
               ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  No members found
-                </TableCell>
-              </TableRow>
             )}
           </TableBody>
         </Table>
@@ -309,10 +306,18 @@ const Members: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-              <TextField
-                label="Electoral Area"
-                name="electoralArea"
+                <TextField
+                label="Electoral_Area"
+                name="electoral_Area"
                 value={editMember.electoralArea}
+                onChange={handleEditInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Member Type"
+                name="memberType"
+                value={editMember.memberType}
                 onChange={handleEditInputChange}
                 fullWidth
                 margin="normal"
