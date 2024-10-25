@@ -56,7 +56,7 @@ const Members: React.FC = () => {
     const fetchAllMembers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://kmabackend.onrender.com/api/members');
+        const response = await axios.get('https://kmabackend.onrender.com/api/search');
         setMembers(response.data); // Set all members
         setFilteredMembers(response.data); // Show all members by default
       } catch (error) {
