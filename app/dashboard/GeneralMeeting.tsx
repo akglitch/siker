@@ -24,7 +24,7 @@ interface Notification {
   show: boolean;
   message: string;
   type: 'success' | 'error';
-}
+}11
 
 interface ErrorResponse {
   message: string;
