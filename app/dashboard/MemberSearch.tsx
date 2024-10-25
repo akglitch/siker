@@ -229,11 +229,10 @@ const Members: React.FC = () => {
         <DataGrid
           rows={filteredMembers}
           columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20]}
+          pageSizeOptions={[5, 10, 25]}
           getRowId={(row: { _id: any; }) => row._id}
           loading={loading}
-          disableSelectionOnClick
+          disableRowSelectionOnClick
         />
       </Paper>
 
