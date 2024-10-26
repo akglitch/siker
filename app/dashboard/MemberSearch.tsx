@@ -33,6 +33,10 @@ interface Member {
   subcommittees?: string[];
 }
 
+interface ErrorResponse {
+  message?: string;
+}
+
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -41,7 +45,8 @@ const Members: React.FC = () => {
   const [query, setQuery] = useState('');
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
-  const [selectedSubcommittee, setSelectedSubcommittee] = useState<string>('Travel');
+  const [subcommitteeMembers, setSubcommitteeMembers] = useState<Member[]>([]);
+  const [selectedSubcommittee, setSelectedSubcommittee] = useState('Travel');
   const [notification, setNotification] = useState({
     show: false,
     message: '',
@@ -88,33 +93,67 @@ const Members: React.FC = () => {
     setQuery(e.target.value);
   };
 
-  const handleAddMemberToSubcommittee = async (member: Member, subcommittee: string) => {
-    if (member.subcommittees && member.subcommittees.length >= 2) {
-      setNotification({
-        show: true,
-        message: 'Member can only be part of 2 subcommittees',
-        type: 'error',
+
+
+  const fetchSubcommitteeMembers = async () => {
+    try {
+      const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees/members', {
+        params: { subcommitteeName: selectedSubcommittee },
       });
+      setSubcommitteeMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching subcommittee members:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubcommitteeMembers();
+  }, [selectedSubcommittee]); 
+
+
+  const handleAddMember = async (member: Member, subcommittee: string) => {
+    if (!subcommittee) {
+      setNotification({ show: true, message: 'Please select a subcommittee', type: 'error' });
       return;
     }
-
+  
+    // Check if the member is already in two subcommittees
+    if (subcommitteeMembers.filter((m) => m._id === member._id).length >= 2) {
+      setNotification({ show: true, message: 'Member can only be part of 2 subcommittees', type: 'error' });
+      return;
+    }
+  
+    // Determine if the member should be a convener
+    let updatedIsConvener = false; // Default to false
+  
+    if (member.isConvener) {
+      // If the member is a convener in another subcommittee, they should not be a convener here
+      updatedIsConvener = !subcommitteeMembers.some((m) => m._id === member._id && m.isConvener);
+    }
+  
     setLoading(true);
     try {
-      await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
+      const response = await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
         subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
+        isConvener: updatedIsConvener,
       });
+  
       setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
-
-      const updatedMembers = members.map((m) =>
-        m._id === member._id ? { ...m, subcommittees: [...(m.subcommittees || []), subcommittee] } : m
-      );
-      setMembers(updatedMembers);
-      setFilteredMembers(updatedMembers);
+  
+      await fetchSubcommitteeMembers();
+      handleSearch({ target: { value: query } } as React.ChangeEvent<HTMLInputElement>);
     } catch (error) {
-      console.error('Error adding member to subcommittee:', error);
-      setNotification({ show: true, message: 'Error adding member', type: 'error' });
+      if (axios.isAxiosError(error)) {
+        const errorResponse = error.response?.data as ErrorResponse;
+        const errorMessage = errorResponse.message || error.message || 'Unknown error';
+        console.error('Error adding member to subcommittee:', errorMessage);
+        setNotification({ show: true, message: 'Error adding member to subcommittee', type: 'error' });
+      } else {
+        console.error('Unexpected error:', error);
+        setNotification({ show: true, message: 'Unexpected error occurred', type: 'error' });
+      }
     } finally {
       setLoading(false);
     }
@@ -203,7 +242,7 @@ const Members: React.FC = () => {
       renderCell: (params: GridRenderCellParams) => (
         <Select
           value=""
-          onChange={(e) => handleAddMemberToSubcommittee(params.row, e.target.value as string)}
+          onChange={(e) => handleAddMember(params.row, e.target.value as string)}
           displayEmpty
           fullWidth
         >
