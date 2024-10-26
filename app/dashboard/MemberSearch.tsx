@@ -17,6 +17,8 @@ import {
   DialogContent,
   DialogTitle,
   Paper,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
@@ -28,10 +30,7 @@ interface Member {
   electoralArea: string;
   memberType: string;
   isConvener?: boolean;
-}
-
-interface ErrorResponse {
-  message?: string;
+  subcommittees?: string[];
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
@@ -42,6 +41,7 @@ const Members: React.FC = () => {
   const [query, setQuery] = useState('');
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
+  const [selectedSubcommittee, setSelectedSubcommittee] = useState<string>('Travel');
   const [notification, setNotification] = useState({
     show: false,
     message: '',
@@ -51,14 +51,13 @@ const Members: React.FC = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editMember, setEditMember] = useState<Member | null>(null);
 
-  // Fetch all members on component load
   useEffect(() => {
     const fetchAllMembers = async () => {
       setLoading(true);
       try {
         const response = await axios.get('https://kmabackend.onrender.com/api/allmembers');
-        setMembers(response.data); // Set all members
-        setFilteredMembers(response.data); // Show all members by default
+        setMembers(response.data);
+        setFilteredMembers(response.data);
       } catch (error) {
         console.error('Error fetching members:', error);
         setNotification({
@@ -74,7 +73,6 @@ const Members: React.FC = () => {
     fetchAllMembers();
   }, []);
 
-  // Filter members based on search query
   useEffect(() => {
     if (query.trim() === '') {
       setFilteredMembers(members);
@@ -86,21 +84,34 @@ const Members: React.FC = () => {
     }
   }, [query, members]);
 
-  // Handle search query
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
 
-  // Handle adding member to a subcommittee
   const handleAddMemberToSubcommittee = async (member: Member, subcommittee: string) => {
+    if (member.subcommittees && member.subcommittees.length >= 2) {
+      setNotification({
+        show: true,
+        message: 'Member can only be part of 2 subcommittees',
+        type: 'error',
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
-      setLoading(true);
       await axios.post('https://kmabackend.onrender.com/api/subcommittees/addmember', {
         subcommitteeName: subcommittee,
         memberId: member._id,
         memberType: member.memberType,
       });
       setNotification({ show: true, message: `${member.name} added to ${subcommittee}`, type: 'success' });
+
+      const updatedMembers = members.map((m) =>
+        m._id === member._id ? { ...m, subcommittees: [...(m.subcommittees || []), subcommittee] } : m
+      );
+      setMembers(updatedMembers);
+      setFilteredMembers(updatedMembers);
     } catch (error) {
       console.error('Error adding member to subcommittee:', error);
       setNotification({ show: true, message: 'Error adding member', type: 'error' });
@@ -109,7 +120,6 @@ const Members: React.FC = () => {
     }
   };
 
-  // Handle delete member
   const handleDeleteMember = async (member: Member) => {
     if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
       setLoading(true);
@@ -120,6 +130,7 @@ const Members: React.FC = () => {
           message: `${member.name} deleted successfully`,
           type: 'success',
         });
+
         const updatedMembers = members.filter((m) => m._id !== member._id);
         setMembers(updatedMembers);
         setFilteredMembers(updatedMembers);
@@ -132,20 +143,17 @@ const Members: React.FC = () => {
     }
   };
 
-  // Handle open edit dialog
   const openEditDialog = (member: Member) => {
     setEditMember(member);
     setEditDialogOpen(true);
   };
 
-  // Handle edit member input change
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (editMember) {
       setEditMember({ ...editMember, [e.target.name]: e.target.value });
     }
   };
 
-  // Handle edit member save
   const handleEditMember = async () => {
     if (!editMember) return;
 
@@ -172,12 +180,10 @@ const Members: React.FC = () => {
     }
   };
 
-  // Handle snackbar close
   const handleSnackbarClose = () => {
     setNotification({ ...notification, show: false });
   };
 
-  // Define columns for DataGrid
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Name', width: 150 },
     { field: 'contact', headerName: 'Contact', width: 130 },
@@ -191,23 +197,33 @@ const Members: React.FC = () => {
       renderCell: (params: GridRenderCellParams) => (params.value ? 'Yes' : 'No'),
     },
     {
+      field: 'subcommittee',
+      headerName: 'Add to Subcommittee',
+      width: 200,
+      renderCell: (params: GridRenderCellParams) => (
+        <Select
+          value=""
+          onChange={(e) => handleAddMemberToSubcommittee(params.row, e.target.value as string)}
+          displayEmpty
+          fullWidth
+        >
+          <MenuItem value="">Choose Subcommittee</MenuItem>
+          <MenuItem value="Travel">Travel</MenuItem>
+          <MenuItem value="Revenue">Revenue</MenuItem>
+          <MenuItem value="Transport">Transport</MenuItem>
+        </Select>
+      ),
+    },
+    {
       field: 'actions',
       headerName: 'Actions',
       width: 180,
       renderCell: (params: GridRenderCellParams) => (
         <div>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => openEditDialog(params.row)}
-          >
+          <Button variant="contained" color="primary" onClick={() => openEditDialog(params.row)}>
             Edit
           </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => handleDeleteMember(params.row)}
-          >
+          <Button variant="contained" color="secondary" onClick={() => handleDeleteMember(params.row)}>
             Delete
           </Button>
         </div>
@@ -230,7 +246,7 @@ const Members: React.FC = () => {
           rows={filteredMembers}
           columns={columns}
           pageSizeOptions={[5, 10, 25]}
-          getRowId={(row: { _id: any; }) => row._id}
+          getRowId={(row) => row._id}
           loading={loading}
           disableRowSelectionOnClick
         />
@@ -240,7 +256,7 @@ const Members: React.FC = () => {
         <DialogTitle>Edit Member</DialogTitle>
         <DialogContent>
           {editMember && (
-            <div>
+            <>
               <TextField
                 label="Name"
                 name="name"
@@ -281,7 +297,7 @@ const Members: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-            </div>
+            </>
           )}
         </DialogContent>
         <DialogActions>
