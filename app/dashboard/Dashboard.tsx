@@ -39,6 +39,7 @@ import AttendanceTracking from "./AttendanceTracking";
 import Members from "./MemberSearch";
 import GeneralMeetingAttendance from "./GeneralMeeting";
 import ConvenerMeetingAttendance from "./ConvenersMeeting";
+import RecentMembersTable from "./RecentMembersTable";
 
 const drawerWidth: number = 240;
 
@@ -125,7 +126,7 @@ function MainView() {
         
         </Grid>
         </Grid>
-    
+    <RecentMembersTable />
       <Copyright sx={{ pt: 4 }} />
     </Container>
   );
