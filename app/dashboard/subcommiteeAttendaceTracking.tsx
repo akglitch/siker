@@ -19,7 +19,7 @@ import {
   AlertColor,
 } from "@mui/material";
 
-// Define the necessary interfaces for types
+// Define necessary interfaces for types
 interface Member {
   memberId: string;
   memberType: string;
@@ -137,11 +137,38 @@ const AttendanceTracking: React.FC = () => {
     }
   };
 
+  const handleDeleteAllAttendance = async () => {
+    try {
+      await axios.delete("https://kmabackend.onrender.com/api/attendance/deleteAll");
+      showSnackbar("All attendance records deleted successfully", "success");
+      fetchSubcommittees(); // Refresh subcommittee data after deletion
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Error deleting all attendance records:", error.message);
+        showSnackbar(
+          error.response?.data?.message || "Error deleting attendance records",
+          "error"
+        );
+      } else {
+        console.error("Unexpected error:", error);
+        showSnackbar("An unexpected error occurred", "error");
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto">
       <Typography variant="h5" component="div" gutterBottom>
         ATTENDANCE TRACKING
       </Typography>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleDeleteAllAttendance}
+        style={{ marginBottom: "20px" }}
+      >
+        Delete All Attendance Records
+      </Button>
       <Grid container spacing={4}>
         {loading && <p>Loading...</p>}
         {!loading && subcommittees.length === 0 && <p>No subcommittees found.</p>}
