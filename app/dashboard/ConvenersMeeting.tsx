@@ -11,13 +11,18 @@ import {
   Paper,
   Button,
   Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 
 interface Member {
   _id: string;
   name: string;
   attended: boolean;
-  submitted: boolean; // Track submission status
+  submitted: boolean;
 }
 
 interface Notification {
@@ -33,6 +38,7 @@ interface ErrorResponse {
 const ConvenerMeetingAttendance: React.FC = () => {
   const [conveners, setConveners] = useState<Member[]>([]);
   const [notification, setNotification] = useState<Notification>({ show: false, message: '', type: 'success' });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // Track delete confirmation dialog visibility
 
   useEffect(() => {
     const fetchConveners = async () => {
@@ -41,7 +47,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
         const convenersWithAttendance = response.data.map((convener: Member) => ({
           ...convener,
           attended: false,
-          submitted: false, // Initially not submitted
+          submitted: false,
         }));
         setConveners(convenersWithAttendance);
       } catch (error) {
@@ -162,7 +168,29 @@ const ConvenerMeetingAttendance: React.FC = () => {
       setNotification({ show: true, message: 'Error generating printable report', type: 'error' });
     }
   };
-  
+
+  const handleDeleteAllRecords = async () => {
+    try {
+      const response = await axios.delete('https://kmabackend.onrender.com/api/convener-meeting/attendance/deleteAll');
+      setNotification({ show: true, message: response.data.message, type: 'success' });
+      setConveners((prevConveners) =>
+        prevConveners.map((convener) => ({ ...convener, attended: false, submitted: false }))
+      );
+    } catch (error) {
+      console.error('Error deleting all attendance records:', error);
+      setNotification({ show: true, message: 'Error deleting all attendance records', type: 'error' });
+    } finally {
+      setDeleteDialogOpen(false); // Close the dialog after attempt
+    }
+  };
+
+  const handleOpenDeleteDialog = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+  };
 
   const handleCloseNotification = () => {
     setNotification({ show: false, message: '', type: 'success' });
@@ -186,7 +214,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
                 <Checkbox
                   checked={convener.attended}
                   onChange={() => handleAttendanceChange(convener._id)}
-                  disabled={convener.submitted} // Disable if already submitted
+                  disabled={convener.submitted}
                 />
               </TableCell>
               <TableCell>
@@ -194,7 +222,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
                   variant="contained"
                   color="secondary"
                   onClick={() => handleSubmitIndividual(convener._id)}
-                  disabled={convener.submitted || !convener.attended} // Disable if already submitted or not attended
+                  disabled={convener.submitted || !convener.attended}
                 >
                   Submit
                 </Button>
@@ -206,6 +234,27 @@ const ConvenerMeetingAttendance: React.FC = () => {
       <Button onClick={generatePrintableReport} variant="outlined" color="primary" style={{ margin: '20px 0' }}>
         Generate Printable Report
       </Button>
+      <Button onClick={handleOpenDeleteDialog} variant="contained" color="error" style={{ margin: '20px' }}>
+        Delete All Attendance Records
+      </Button>
+
+      {/* Confirmation Dialog for Delete All */}
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete all attendance records? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteAllRecords} color="secondary" variant="contained">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={notification.show}
