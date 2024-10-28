@@ -169,7 +169,7 @@ const GeneralMeetingAttendance: React.FC = () => {
 
   const handleDeleteAllAttendance = async () => {
     try {
-      await axios.delete('https://kmabackend.onrender.com/api/general-meeting/attendance/deleteAll');
+      await axios.delete('https://kmabackend.onrender.com/api/generalMeeting/attendance/deleteAll');
       setMembers((prevMembers) =>
         prevMembers.map((member) => ({
           ...member,
