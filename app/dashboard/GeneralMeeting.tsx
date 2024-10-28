@@ -11,6 +11,11 @@ import {
   Paper,
   Button,
   Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 
 interface Member {
@@ -24,7 +29,7 @@ interface Notification {
   show: boolean;
   message: string;
   type: 'success' | 'error';
-}11
+}
 
 interface ErrorResponse {
   message: string;
@@ -33,6 +38,7 @@ interface ErrorResponse {
 const GeneralMeetingAttendance: React.FC = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [notification, setNotification] = useState<Notification>({ show: false, message: '', type: 'success' });
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -161,6 +167,32 @@ const GeneralMeetingAttendance: React.FC = () => {
     }
   };
 
+  const handleDeleteAllAttendance = async () => {
+    try {
+      await axios.delete('https://kmabackend.onrender.com/api/general-meeting/attendance/deleteAll');
+      setMembers((prevMembers) =>
+        prevMembers.map((member) => ({
+          ...member,
+          attended: false,
+          submitted: false,
+        }))
+      );
+      setNotification({ show: true, message: 'All attendance records deleted successfully', type: 'success' });
+    } catch (error) {
+      setNotification({ show: true, message: 'Error deleting attendance records', type: 'error' });
+      console.error('Error deleting attendance records:', error);
+    }
+    setConfirmDialogOpen(false); // Close dialog after deletion
+  };
+
+  const handleOpenConfirmDialog = () => {
+    setConfirmDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+  };
+
   const handleCloseNotification = () => {
     setNotification({ show: false, message: '', type: 'success' });
   };
@@ -203,6 +235,9 @@ const GeneralMeetingAttendance: React.FC = () => {
       <Button onClick={generatePrintableReport} variant="outlined" color="primary" style={{ margin: '20px 0' }}>
         Generate Printable Report
       </Button>
+      <Button onClick={handleOpenConfirmDialog} variant="outlined" color="secondary" style={{ margin: '20px' }}>
+        Delete All Attendance Records
+      </Button>
 
       <Snackbar
         open={notification.show}
@@ -210,6 +245,24 @@ const GeneralMeetingAttendance: React.FC = () => {
         message={notification.message}
         autoHideDuration={4000}
       />
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialogOpen} onClose={handleCloseConfirmDialog}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete all attendance records? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteAllAttendance} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </TableContainer>
   );
 };

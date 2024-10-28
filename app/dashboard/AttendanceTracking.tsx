@@ -17,6 +17,11 @@ import {
   Snackbar,
   Alert,
   AlertColor,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 
 // Define necessary interfaces for types
@@ -50,6 +55,7 @@ const AttendanceTracking: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -137,6 +143,14 @@ const AttendanceTracking: React.FC = () => {
     }
   };
 
+  const handleOpenConfirmDialog = () => {
+    setConfirmDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+  };
+
   const handleDeleteAllAttendance = async () => {
     try {
       await axios.delete("https://kmabackend.onrender.com/api/attendance/deleteAll");
@@ -154,6 +168,7 @@ const AttendanceTracking: React.FC = () => {
         showSnackbar("An unexpected error occurred", "error");
       }
     }
+    setConfirmDialogOpen(false); // Close dialog after deletion
   };
 
   return (
@@ -164,7 +179,7 @@ const AttendanceTracking: React.FC = () => {
       <Button
         variant="contained"
         color="secondary"
-        onClick={handleDeleteAllAttendance}
+        onClick={handleOpenConfirmDialog}
         style={{ marginBottom: "20px" }}
       >
         Delete All Attendance Records
@@ -199,7 +214,6 @@ const AttendanceTracking: React.FC = () => {
                             if (!record.date) return false;
                             const recordDate = new Date(record.date);
                             const today = new Date();
-                            // Reset the time to midnight for comparison
                             recordDate.setHours(0, 0, 0, 0);
                             today.setHours(0, 0, 0, 0);
                             return (
@@ -270,6 +284,24 @@ const AttendanceTracking: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialogOpen} onClose={handleCloseConfirmDialog}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete all attendance records? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteAllAttendance} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
