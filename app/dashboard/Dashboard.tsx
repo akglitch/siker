@@ -32,7 +32,6 @@ import TotalAssemblyMembers from "./TotalAssemblyMembers";
 import TotalGovernmentAppointees from "./TotalGovernmentAppointees";
 import AddGovernmentAppointeeForm from "./AddGovernmentAppointeeForm";
 import AddAssemblyMemberForm from "./AddAssemblyMemberForm";
-import TotalAttendance from "./TotalAttendance";
 import Subcommittees from "./Allcommitees";
 import AttendanceReport from "./AttendanceReport";
 import AttendanceTracking from "./AttendanceTracking";
@@ -40,6 +39,11 @@ import Members from "./MemberSearch";
 import GeneralMeetingAttendance from "./GeneralMeeting";
 import ConvenerMeetingAttendance from "./ConvenersMeeting";
 import RecentMembersTable from "./RecentMembersTable";
+import TotalConvenerAttendance from "./TotalConvenerAttendance";
+import TotalGeneralAttendance from "./TotalGeneralAttendance";
+import TotalMembers from "./TotalMembers";
+import TotalConveners from "./TotalConvenerscount";
+import TotalSubCommitteeAttendance from "./TotalSubcommitteeAttendance";
 
 const drawerWidth: number = 240;
 
@@ -116,7 +120,7 @@ function MainView() {
         </Grid>
         <Grid item xs={12} md={4} lg={4}>
          
-          <TotalAttendance />
+          <TotalSubCommitteeAttendance />
         
         </Grid>
         {/* Recent Deposits */}
@@ -125,9 +129,29 @@ function MainView() {
             <TotalGovernmentAppointees />
         
         </Grid>
+        <Grid item xs={12} md={4} lg={4}>
+        
+        <TotalConvenerAttendance />
+    
+    </Grid>
+    <Grid item xs={12} md={4} lg={4}>
+        
+        <TotalGeneralAttendance />
+    
+    </Grid>
+    <Grid item xs={12} md={4} lg={4}>
+        
+        <TotalMembers />
+    
+    </Grid>
+    <Grid item xs={12} md={4} lg={4}>
+        
+        <TotalConveners />
+    
+    </Grid>
         </Grid>
     <RecentMembersTable />
-      <Copyright sx={{ pt: 4 }} />
+      <Copyright sx={{ pt: 12 }} />
     </Container>
   );
 }
