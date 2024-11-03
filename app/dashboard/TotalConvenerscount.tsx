@@ -13,18 +13,18 @@ export default function TotalConveners() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTotalMembers = async () => {
+    const fetchTotalConveners = async () => {
       try {
         const response = await axios.get('https://kmabackend.onrender.com/api/totalconveners');
-        setTotalConveners(response.data.totalMembers); // Adjusted based on the data structure
+        setTotalConveners(response.data.totalConveners); // Corrected field name
       } catch (error) {
-        console.error('Error fetching total members:', error);
+        console.error('Error fetching total conveners:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTotalMembers();
+    fetchTotalConveners();
   }, []);
 
   if (loading) {
@@ -36,7 +36,7 @@ export default function TotalConveners() {
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
           <CardTitle className='text-sm font-medium'>
-            Total Members
+            Total Conveners
           </CardTitle>
           <svg
             xmlns='http://www.w3.org/2000/svg'
