@@ -16,7 +16,7 @@ function preventDefault(event: React.MouseEvent) {
   event.preventDefault();
 }
 
-export default function TotalAttendance() {
+export default function TotalSubCommitteeAttendance() {
   const [totalAttendance, setTotalAttendance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +45,7 @@ export default function TotalAttendance() {
       <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium'>
-                  Total Attendance
+                  Total sub committee Attendance
                   </CardTitle>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
