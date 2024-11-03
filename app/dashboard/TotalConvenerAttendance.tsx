@@ -10,8 +10,8 @@ export default function TotalConvenerAttendance() {
     const fetchTotalAttendance = async () => {
       try {
         const response = await axios.get('https://kmabackend.onrender.com/api/totalconvenerattendance');
-        console.log(response.data); // Log the response structure
-        setTotalAttendance(response.data.totalAttendance); // Adjust this based on response structure
+        console.log('API response:', response.data); // Debugging response data
+        setTotalAttendance(response.data.totalAttendance);
       } catch (error) {
         console.error('Error fetching total attendance:', error);
       } finally {
@@ -36,7 +36,7 @@ export default function TotalConvenerAttendance() {
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="h-4 w-4 text-muted-foreground"
+          className="h-4 w-4 text-black" // Changed color for visibility
         >
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
@@ -45,7 +45,7 @@ export default function TotalConvenerAttendance() {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{totalAttendance}</div>
-        <p className="text-xs text-muted-foreground">Attendance records counted</p>
+        <p className="text-xs text-black">Attendance records counted</p> {/* Changed color for visibility */}
       </CardContent>
     </Card>
   );
