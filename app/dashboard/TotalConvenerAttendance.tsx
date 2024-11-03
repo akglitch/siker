@@ -10,7 +10,8 @@ export default function TotalConvenerAttendance() {
     const fetchTotalAttendance = async () => {
       try {
         const response = await axios.get('https://kmabackend.onrender.com/api/totalconvenerattendance');
-        setTotalAttendance(response.data.totalAttendance);
+        console.log(response.data); // Log the response structure
+        setTotalAttendance(response.data.totalAttendance); // Adjust this based on response structure
       } catch (error) {
         console.error('Error fetching total attendance:', error);
       } finally {
