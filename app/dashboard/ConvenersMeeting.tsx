@@ -171,7 +171,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
 
   const handleDeleteAllRecords = async () => {
     try {
-      const response = await axios.delete('https://kmabackend.onrender.com/api/attendance/deleteAll');
+      const response = await axios.delete('https://kmabackend.onrender.com/api/convattendance/deleteAll');
       setNotification({ show: true, message: response.data.message, type: 'success' });
       setConveners((prevConveners) =>
         prevConveners.map((convener) => ({ ...convener, attended: false, submitted: false }))

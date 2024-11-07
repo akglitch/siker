@@ -153,7 +153,7 @@ const AttendanceTracking: React.FC = () => {
 
   const handleDeleteAllAttendance = async () => {
     try {
-      await axios.delete("https://kmabackend.onrender.com/api/attendance/deleteAll");
+      await axios.delete("https://kmabackend.onrender.com/api/subattendance/deleteAll");
       showSnackbar("All attendance records deleted successfully", "success");
       fetchSubcommittees(); // Refresh subcommittee data after deletion
     } catch (error) {
