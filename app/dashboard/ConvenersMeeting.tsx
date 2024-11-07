@@ -56,7 +56,6 @@ const ConvenerMeetingAttendance: React.FC = () => {
       }
     };
 
-    fetchConveners();
   }, []);
 
   const handleAttendanceChange = (id: string) => {
