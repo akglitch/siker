@@ -55,7 +55,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
         console.error('Error fetching conveners:', error);
       }
     };
-
+    fetchConveners();
   }, []);
 
   const handleAttendanceChange = (id: string) => {
