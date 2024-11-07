@@ -59,9 +59,8 @@ const RecentMembersTable: React.FC = () => {
               <TableCell>Contact</TableCell>
               <TableCell>Gender</TableCell>
               <TableCell>Electoral Area</TableCell>
-              <TableCell>Member Type</TableCell>
-              <TableCell>Convener</TableCell>
-              <TableCell>Date Added</TableCell>
+          
+           
             </TableRow>
           </TableHead>
           <TableBody>
@@ -71,9 +70,8 @@ const RecentMembersTable: React.FC = () => {
                 <TableCell>{member.contact}</TableCell>
                 <TableCell>{member.gender}</TableCell>
                 <TableCell>{member.electoralArea}</TableCell>
-                <TableCell>{member.memberType}</TableCell>
-                <TableCell>{member.isConvener ? 'Yes' : 'No'}</TableCell>
-                <TableCell>{new Date(member.createdAt).toLocaleDateString()}</TableCell>
+                
+              
               </TableRow>
             ))}
           </TableBody>
