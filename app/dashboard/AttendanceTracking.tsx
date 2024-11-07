@@ -87,7 +87,9 @@ const AttendanceTracking: React.FC = () => {
     }
   };
 
-  
+  useEffect(() => {
+    fetchSubcommittees();
+  }, []);
 
   const handleAttendanceChange = (
     subcommitteeId: string,
