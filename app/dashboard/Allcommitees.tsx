@@ -1,7 +1,5 @@
-"use client";
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { 
   Grid, 
   Card, 
@@ -15,7 +13,7 @@ import {
   TableRow, 
   Paper, 
   Button 
-} from '@mui/material';
+} from "@mui/material";
 
 interface Member {
   memberId: string;
@@ -34,17 +32,22 @@ const Subcommittees: React.FC = () => {
   const [subcommittees, setSubcommittees] = useState<Subcommittee[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Ref to track if data is already fetched
+  const isDataFetched = useRef(false);
+
   const fetchSubcommittees = async () => {
+    if (isDataFetched.current) return; // Skip fetching if data already exists
     setLoading(true);
     try {
-      const response = await axios.get('https://kmabackend.onrender.com/api/subcommittees');
+      const response = await axios.get("https://kmabackend.onrender.com/api/subcommittees");
       const sortedSubcommittees = response.data.sort((a: Subcommittee, b: Subcommittee) => {
-        const order = ['Transport', 'Revenue', 'Travel'];
+        const order = ["Transport", "Revenue", "Travel"];
         return order.indexOf(a.name) - order.indexOf(b.name);
       });
       setSubcommittees(sortedSubcommittees);
+      isDataFetched.current = true; // Mark as fetched
     } catch (error) {
-      console.error('Error fetching subcommittees:', error);
+      console.error("Error fetching subcommittees:", error);
     } finally {
       setLoading(false);
     }
@@ -53,15 +56,15 @@ const Subcommittees: React.FC = () => {
   const handleDeleteMember = async (subcommitteeId: string, memberId: string) => {
     try {
       await axios.delete(`https://kmabackend.onrender.com/api/subcommittees/${subcommitteeId}/members/${memberId}`);
-      // Refresh the list of subcommittees
+      // Refresh the list of subcommittees after deletion
       fetchSubcommittees();
     } catch (error) {
-      console.error('Error deleting member:', error);
+      console.error("Error deleting member:", error);
     }
   };
 
   useEffect(() => {
-    fetchSubcommittees(); // Initial fetch
+    fetchSubcommittees();
   }, []);
 
   return (
@@ -93,7 +96,7 @@ const Subcommittees: React.FC = () => {
                           <TableRow key={member.memberId}>
                             <TableCell>{member.name}</TableCell>
                             <TableCell>{member.memberType}</TableCell>
-                            <TableCell>{member.isConvener ? 'Convener' : 'Member'}</TableCell>
+                            <TableCell>{member.isConvener ? "Convener" : "Member"}</TableCell>
                             <TableCell>
                               <Button
                                 variant="contained"
