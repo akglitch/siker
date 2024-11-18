@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios, { AxiosError } from 'axios';
 import {
   Checkbox,
@@ -40,7 +40,14 @@ const GeneralMeetingAttendance: React.FC = () => {
   const [notification, setNotification] = useState<Notification>({ show: false, message: '', type: 'success' });
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
+  // Ref to track if the API has already been fetched
+  const hasFetchedMembers = useRef(false);
+
   useEffect(() => {
+    if (hasFetchedMembers.current) {
+      return; // Skip fetching if data is already fetched
+    }
+
     const fetchMembers = async () => {
       try {
         const response = await axios.get('https://kmabackend.onrender.com/api/generalmembers');
@@ -50,6 +57,9 @@ const GeneralMeetingAttendance: React.FC = () => {
           submitted: false, // Initially not submitted
         }));
         setMembers(membersWithAttendance);
+
+        // Mark as fetched
+        hasFetchedMembers.current = true;
       } catch (error) {
         setNotification({ show: true, message: 'Error fetching members', type: 'error' });
         console.error('Error fetching members:', error);

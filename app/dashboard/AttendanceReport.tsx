@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import {
   Button,
@@ -17,7 +17,6 @@ import {
   Typography,
 } from "@mui/material";
 
-// Add this section if you haven't imported the Subcommittee type
 interface Member {
   memberId: string;
   memberType: string;
@@ -53,6 +52,9 @@ const AttendanceReport: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
 
+  // Ref to prevent redundant fetching
+  const isDataFetched = useRef(false);
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -64,12 +66,16 @@ const AttendanceReport: React.FC = () => {
   };
 
   const handleFetchReport = async () => {
+    if (isDataFetched.current) {
+      showSnackbar("Data already loaded", "info");
+      return; // Exit if data has already been fetched
+    }
     setLoading(true);
     try {
       const response = await axios.get<Subcommittee[]>(
         "https://kmabackend.onrender.com/api/report"
       );
-      console.log("Report data from API:", response.data); // Debugging log
+      console.log("Report data from API:", response.data);
 
       const flattenedData: ReportRecord[] = response.data.flatMap(
         (subcommittee) =>
@@ -82,6 +88,7 @@ const AttendanceReport: React.FC = () => {
       );
 
       setAttendanceReport(flattenedData);
+      isDataFetched.current = true; // Mark data as fetched
       showSnackbar("Report fetched successfully", "success");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
