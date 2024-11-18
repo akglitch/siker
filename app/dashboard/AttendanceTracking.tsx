@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -153,7 +155,9 @@ const AttendanceTracking: React.FC = () => {
 
   const handleDeleteAllAttendance = async () => {
     try {
-      await axios.delete("https://kmabackend.onrender.com/api/subattendance/deleteAll");
+      await axios.delete(
+        "https://kmabackend.onrender.com/api/subattendance/deleteAll"
+      );
       showSnackbar("All attendance records deleted successfully", "success");
       fetchSubcommittees(); // Refresh subcommittee data after deletion
     } catch (error) {
@@ -209,8 +213,8 @@ const AttendanceTracking: React.FC = () => {
                     <TableBody>
                       {subcommittee.members?.map((member) => {
                         const key = `${subcommittee._id}-${member.memberId}`;
-                        const isAttendanceMarkedToday = subcommittee.attendance?.some(
-                          (record) => {
+                        const isAttendanceMarkedToday =
+                          subcommittee.attendance?.some((record) => {
                             if (!record.date) return false;
                             const recordDate = new Date(record.date);
                             const today = new Date();
@@ -220,8 +224,7 @@ const AttendanceTracking: React.FC = () => {
                               record.memberId === member.memberId &&
                               recordDate.getTime() === today.getTime()
                             );
-                          }
-                        ) || false; // Default to false if attendance is undefined
+                          }) || false; // Default to false if attendance is undefined
 
                         return (
                           <TableRow key={member.memberId}>
@@ -230,7 +233,9 @@ const AttendanceTracking: React.FC = () => {
                             <TableCell>{member.totalAmount || 0}</TableCell>
                             <TableCell>
                               <Checkbox
-                                checked={selectedAttendance[key]?.attendance || false}
+                                checked={
+                                  selectedAttendance[key]?.attendance || false
+                                }
                                 onChange={() =>
                                   handleAttendanceChange(
                                     subcommittee._id,
@@ -290,7 +295,8 @@ const AttendanceTracking: React.FC = () => {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete all attendance records? This action cannot be undone.
+            Are you sure you want to delete all attendance records? This action
+            cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

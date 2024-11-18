@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios, { AxiosError } from 'axios';
 import {
   Checkbox,
@@ -38,9 +38,17 @@ interface ErrorResponse {
 const ConvenerMeetingAttendance: React.FC = () => {
   const [conveners, setConveners] = useState<Member[]>([]);
   const [notification, setNotification] = useState<Notification>({ show: false, message: '', type: 'success' });
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // Track delete confirmation dialog visibility
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Ref to track if the API has already been fetched
+  const hasFetchedConveners = useRef(false);
 
   useEffect(() => {
+    if (hasFetchedConveners.current) {
+      // Skip fetching if the API has already been fetched
+      return;
+    }
+
     const fetchConveners = async () => {
       try {
         const response = await axios.get('https://kmabackend.onrender.com/api/conveners');
@@ -50,11 +58,15 @@ const ConvenerMeetingAttendance: React.FC = () => {
           submitted: false,
         }));
         setConveners(convenersWithAttendance);
+
+        // Mark as fetched to prevent re-fetching
+        hasFetchedConveners.current = true;
       } catch (error) {
         setNotification({ show: true, message: 'Error fetching conveners', type: 'error' });
         console.error('Error fetching conveners:', error);
       }
     };
+
     fetchConveners();
   }, []);
 
@@ -85,9 +97,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
       });
 
       setConveners((prevConveners) =>
-        prevConveners.map((m) =>
-          m._id === id ? { ...m, submitted: true } : m
-        )
+        prevConveners.map((m) => (m._id === id ? { ...m, submitted: true } : m))
       );
 
       setNotification({
@@ -113,9 +123,9 @@ const ConvenerMeetingAttendance: React.FC = () => {
     try {
       const response = await axios.get('https://kmabackend.onrender.com/api/execoreport');
       const reportData = response.data;
-  
+
       const reportWindow = window.open('', '', 'width=800,height=600');
-  
+
       const reportContent = `
         <html>
         <head>
@@ -159,7 +169,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
         </body>
         </html>
       `;
-  
+
       reportWindow?.document.write(reportContent);
       reportWindow?.document.close();
     } catch (error) {
@@ -179,7 +189,7 @@ const ConvenerMeetingAttendance: React.FC = () => {
       console.error('Error deleting all attendance records:', error);
       setNotification({ show: true, message: 'Error deleting all attendance records', type: 'error' });
     } finally {
-      setDeleteDialogOpen(false); // Close the dialog after attempt
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -237,7 +247,6 @@ const ConvenerMeetingAttendance: React.FC = () => {
         Delete All Attendance Records
       </Button>
 
-      {/* Confirmation Dialog for Delete All */}
       <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
