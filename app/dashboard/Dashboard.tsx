@@ -210,11 +210,6 @@ export default function Dashboard() {
               <Brightness4 sx={{ color: "black" }} />
             )}
           </IconButton>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon sx={{ color: theme.palette.mode === "light" ? "black" : "white" }} />
-            </Badge>
-          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
