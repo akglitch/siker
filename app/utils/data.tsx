@@ -1,1 +1,1 @@
-export const SITENAME = "Members Management System";
+export const SITENAME = "Attendance Tracking and Financial Management System";
