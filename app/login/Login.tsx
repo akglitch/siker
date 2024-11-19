@@ -101,8 +101,8 @@ const Login: React.FC = () => {
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-300">
               Don't have an account?{' '}
-              <Link href="/signUp" className="font-medium text-yellow-400 hover:text-yellow-300">
-                Sign Up
+              <Link href="" className="font-medium text-yellow-400 hover:text-yellow-300">
+              Contact  Admin
               </Link>
             </p>
           </div>
