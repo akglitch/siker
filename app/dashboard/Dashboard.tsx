@@ -123,7 +123,6 @@ function MainView() {
           <TotalSubCommitteeAttendance />
         
         </Grid>
-        {/* Recent Deposits */}
         <Grid item xs={12} md={4} lg={4}>
         
             <TotalGovernmentAppointees />
@@ -201,7 +200,7 @@ export default function Dashboard() {
   noWrap
   sx={{ flexGrow: 1 }}
 >
-  Member Management System
+  ATFAS
 </Typography>
           <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
             {theme.palette.mode === "dark" ? (
